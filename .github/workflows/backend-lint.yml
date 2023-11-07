@@ -1,0 +1,14 @@
+name: "Backend: Lint"
+on: [pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: maven
+      - run: ./ci/lint/check.sh
+        working-directory: ./backend
