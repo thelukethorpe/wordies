@@ -1,0 +1,21 @@
+.Flippable {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+
+    margin: auto;
+}
+
+.Flippable.Flipped {
+    transform: rotateY(180deg);
+}
+
+.Flippable-front,
+.Flippable-back {
+    position: absolute;
+    backface-visibility: hidden;
+}
+
+.Flippable-back {
+    transform: rotateY(180deg);
+}

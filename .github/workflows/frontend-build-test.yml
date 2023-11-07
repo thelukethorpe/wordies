@@ -1,0 +1,26 @@
+name: "Frontend: Build & Test"
+on: [pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 21.x
+          cache: npm
+          cache-dependency-path: "**/package-lock.json"
+      - run: ./ci/build.sh
+        working-directory: ./frontend
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 21.x
+          cache: npm
+          cache-dependency-path: "**/package-lock.json"
+      - run: ./ci/test.sh
+        working-directory: ./frontend

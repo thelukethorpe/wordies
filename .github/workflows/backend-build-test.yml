@@ -1,0 +1,26 @@
+name: "Backend: Build & Test"
+on: [pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: maven
+      - run: ./ci/build.sh
+        working-directory: ./backend
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: maven
+      - run: ./ci/test.sh
+        working-directory: ./backend
