@@ -4,7 +4,8 @@ import io.wordies.config.PropertiesConfig;
 import io.wordies.crossword.model.Orientation;
 import io.wordies.crossword.model.Question;
 import io.wordies.crossword.model.crossword.Crossword;
-import io.wordies.crossword.model.crossword.RandomCrosswordFactory;
+import io.wordies.crossword.model.crossword.CrosswordFactory;
+import io.wordies.crossword.model.crossword.SnakeCrosswordFactory;
 import io.wordies.crossword.repository.CrosswordRepository;
 import java.util.Random;
 import java.util.TreeMap;
@@ -29,16 +30,15 @@ public class CrosswordService {
 
   public Crossword getRandomCrossword(int width, int height, int minWordLength, int maxWordLength) {
     TreeMap<Double, Crossword> qualityCoefficientToCrosswordMap = new TreeMap<>();
-    RandomCrosswordFactory randomCrosswordFactory = new RandomCrosswordFactory();
-    randomCrosswordFactory.setWidth(width);
-    randomCrosswordFactory.setHeight(height);
-    randomCrosswordFactory.setMinWordLength(minWordLength);
-    randomCrosswordFactory.setMaxWordLength(maxWordLength);
-    randomCrosswordFactory.setMaxOffset(MAX_OFFSET);
+    CrosswordFactory crosswordFactory = new SnakeCrosswordFactory();
+    crosswordFactory.setWidth(width);
+    crosswordFactory.setHeight(height);
+    crosswordFactory.setMinWordLength(minWordLength);
+    crosswordFactory.setMaxWordLength(maxWordLength);
+    crosswordFactory.setMaxOffset(MAX_OFFSET);
     for (int i = 0; i < qualityAssuranceSampleSize; i++) {
       Crossword crossword =
-          randomCrosswordFactory.getRandomCrossword(
-              random, crosswordRepository, crosswordRepository);
+          crosswordFactory.getRandomCrossword(random, crosswordRepository, crosswordRepository);
       double qualityCoefficient = getCrosswordQualityCoefficient(crossword);
       qualityCoefficientToCrosswordMap.put(qualityCoefficient, crossword);
     }

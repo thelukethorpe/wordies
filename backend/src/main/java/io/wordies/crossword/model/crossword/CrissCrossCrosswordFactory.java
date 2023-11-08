@@ -7,9 +7,9 @@ import io.wordies.crossword.model.WordFactory;
 import java.util.Random;
 import java.util.function.Function;
 
-public class RandomCrosswordFactory {
-  private int width, height, minWordLength = 1, maxWordLength = 1, maxOffset = 1;
+public class CrissCrossCrosswordFactory extends CrosswordFactory {
 
+  @Override
   public Crossword getRandomCrossword(
       Random random, WordFactory wordFactory, HintFactory hintFactory) {
     Orientation orientation = random.nextBoolean() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
@@ -26,7 +26,7 @@ public class RandomCrosswordFactory {
       WordFactory wordFactory,
       HintFactory hintFactory) {
     // If orientation is VERTICAL,   then u = x and v = y.
-    // If orientation is HORIZONTAL, then u = y, v = x.
+    // If orientation is HORIZONTAL, then u = y and v = x.
     Function<Position, Position> changeDomain =
         position ->
             new Position(
@@ -59,25 +59,5 @@ public class RandomCrosswordFactory {
 
   private int getRandomOffset(Random random) {
     return random.nextInt(maxOffset + 1);
-  }
-
-  public void setWidth(int width) {
-    this.width = width;
-  }
-
-  public void setHeight(int height) {
-    this.height = height;
-  }
-
-  public void setMinWordLength(int minWordLength) {
-    this.minWordLength = minWordLength;
-  }
-
-  public void setMaxWordLength(int maxWordLength) {
-    this.maxWordLength = maxWordLength;
-  }
-
-  public void setMaxOffset(int maxOffset) {
-    this.maxOffset = maxOffset;
   }
 }
