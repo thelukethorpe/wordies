@@ -32,13 +32,14 @@ function ListCard(props) {
                   textAlign: "left"
                 }}>
                 <Typography>
-                  <b>{index}: </b>
+                  <b>{hint.index}: </b>
                 </Typography>
                 <Typography
                   style={{
-                    paddingLeft: 5
+                    paddingLeft: 5,
+                    textDecoration: hint.hasBeenFound ? "line-through" : "none"
                   }}>
-                  {hint}
+                  {hint.text}
                 </Typography>
               </div>
             </div>
@@ -109,6 +110,7 @@ function CrosswordTile(props) {
   const front = props.contents.isCorrect ? (
     <Tile
       character={props.contents.answer}
+      index={props.contents.index}
       size={size}
       style={{ backgroundColor: theme.successColor }}
     />
@@ -178,9 +180,10 @@ function ParseGetResponse(json, setSelectedPosition) {
       return { answer: "" };
     });
   });
-  let index = 0;
-  const horizontalHints = {};
-  const verticalHints = {};
+  let displayIndex = 0;
+  let answerIndex = 0;
+  const acrossHints = {};
+  const downHints = {};
   const answers = [];
   Array.from({ length: questions.length }).map((_, i) => {
     const question = questions[i];
@@ -202,24 +205,25 @@ function ParseGetResponse(json, setSelectedPosition) {
     });
     const gridTile = gridContents[question.position.x][question.position.y];
     if (!gridTile.index) {
-      index = index + 1;
+      displayIndex = displayIndex + 1;
     }
-    gridTile.index = index;
+    gridTile.index = displayIndex;
     const randomHintIndex = Math.floor(Math.random() * question.hints.length);
-    const hint = question.hints[randomHintIndex];
+    const hintText = question.hints[randomHintIndex];
+    const hint = { index: displayIndex, text: hintText, hasBeenFound: false };
     if (question.orientation === "ACROSS") {
-      horizontalHints[index] = hint;
+      acrossHints[answerIndex] = hint;
     } else {
-      verticalHints[index] = hint;
+      downHints[answerIndex] = hint;
     }
     answers.push({
       position: question.position,
       orientation: question.orientation,
       length: question.answer.length
     });
+    answerIndex = answerIndex + 1;
   });
-  console.log(answers);
-  return [gridContents, horizontalHints, verticalHints, answers];
+  return [gridContents, acrossHints, downHints, answers];
 }
 
 export default function CrosswordPage() {
@@ -236,8 +240,8 @@ export default function CrosswordPage() {
       });
     })
   );
-  const [horizontalHints, setHorizontalHints] = useState({});
-  const [verticalHints, setVerticalHints] = useState({});
+  const [acrossHints, setAcrossHints] = useState({});
+  const [downHints, setDownHints] = useState({});
   const [answers, setAnswers] = useState([]);
   const [selectedPosition, setSelectedPosition] = useState(null);
 
@@ -257,7 +261,8 @@ export default function CrosswordPage() {
   };
 
   const onCheck = () => {
-    for (const answer of answers) {
+    for (let index = 0; index < answers.length; index++) {
+      const answer = answers[index];
       const correctGridTiles = [];
       for (let i = 0; i < answer.length; i++) {
         const [x, y] = Translate(answer.position, i, answer.orientation);
@@ -270,6 +275,11 @@ export default function CrosswordPage() {
       }
       if (answer.length !== correctGridTiles.length) {
         continue;
+      }
+      if (acrossHints[index]) {
+        acrossHints[index].hasBeenFound = true;
+      } else {
+        downHints[index].hasBeenFound = true;
       }
       for (const correctGridTile of correctGridTiles) {
         correctGridTile.isCorrect = true;
@@ -286,13 +296,13 @@ export default function CrosswordPage() {
         return response.json();
       })
       .then((json) => {
-        const [newGridContents, newHorizontalHints, newVerticalHints, answers] = ParseGetResponse(
+        const [newGridContents, newAcrossHints, newDownHints, answers] = ParseGetResponse(
           json,
           setSelectedPosition
         );
         setGridContents(newGridContents);
-        setHorizontalHints(newHorizontalHints);
-        setVerticalHints(newVerticalHints);
+        setAcrossHints(newAcrossHints);
+        setDownHints(newDownHints);
         setAnswers(answers);
       })
       .catch((error) => {
@@ -316,7 +326,7 @@ export default function CrosswordPage() {
   return (
     <div className="Page">
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-        <HintCard hints={horizontalHints} title={"Across"} />
+        <HintCard hints={acrossHints} title={"Across"} />
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <CrosswordGrid width={width} height={height} gridContents={gridContents} />
           <Keyboard onKeyDown={onKeyDown} />
@@ -327,7 +337,7 @@ export default function CrosswordPage() {
             <b>Check</b>
           </Button>
         </div>
-        <HintCard hints={verticalHints} title={"Down"} />
+        <HintCard hints={downHints} title={"Down"} />
       </div>
     </div>
   );
