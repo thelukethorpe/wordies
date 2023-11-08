@@ -182,7 +182,7 @@ function CrosswordGrid(props) {
 }
 
 function Translate(position, distance, orientation) {
-  if (orientation === "HORIZONTAL") {
+  if (orientation === "ACROSS") {
     return [position.x + distance, position.y];
   }
   return [position.x, position.y + distance];
@@ -230,7 +230,7 @@ function ParseGetResponse(json, setSelectedPosition) {
     gridTile.index = index;
     const randomHintIndex = Math.floor(Math.random() * question.hints.length);
     const hint = question.hints[randomHintIndex];
-    if (question.orientation === "HORIZONTAL") {
+    if (question.orientation === "ACROSS") {
       horizontalHints[index] = hint;
     } else {
       verticalHints[index] = hint;
@@ -339,7 +339,7 @@ export default function CrosswordPage() {
   return (
     <div className="Page">
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-        <HintCard hints={horizontalHints} title={"Horizontal"} />
+        <HintCard hints={horizontalHints} title={"Across"} />
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <CrosswordGrid width={width} height={height} gridContents={gridContents} />
           <Keyboard onKeyDown={onKeyDown} />
@@ -350,7 +350,7 @@ export default function CrosswordPage() {
             <b>Check</b>
           </Button>
         </div>
-        <HintCard hints={verticalHints} title={"Vertical"} />
+        <HintCard hints={verticalHints} title={"Down"} />
       </div>
     </div>
   );
