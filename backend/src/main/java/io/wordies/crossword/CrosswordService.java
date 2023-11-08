@@ -60,12 +60,12 @@ public class CrosswordService {
     long numRows =
         crossword.questions().stream()
             .map(Question::orientation)
-            .filter(orientation -> orientation == Orientation.HORIZONTAL)
+            .filter(orientation -> orientation == Orientation.ACROSS)
             .count();
     long numColumns =
         crossword.questions().stream()
             .map(Question::orientation)
-            .filter(orientation -> orientation == Orientation.VERTICAL)
+            .filter(orientation -> orientation == Orientation.DOWN)
             .count();
     long delta = Math.abs(numRows - numColumns);
     long max = Math.max(numRows, numColumns);

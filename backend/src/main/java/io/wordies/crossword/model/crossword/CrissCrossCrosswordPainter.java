@@ -20,7 +20,7 @@ public class CrissCrossCrosswordPainter extends CrosswordPainter {
       Random random,
       WordFactory wordFactory,
       HintFactory hintFactory) {
-    Orientation orientation = random.nextBoolean() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+    Orientation orientation = random.nextBoolean() ? Orientation.ACROSS : Orientation.DOWN;
     addRandomWords(builder, orientation, random, wordFactory, hintFactory);
     addRandomWords(builder, orientation.flip(), random, wordFactory, hintFactory);
   }
@@ -31,8 +31,8 @@ public class CrissCrossCrosswordPainter extends CrosswordPainter {
       Random random,
       WordFactory wordFactory,
       HintFactory hintFactory) {
-    // If orientation is VERTICAL,   then u = x and v = y.
-    // If orientation is HORIZONTAL, then u = y and v = x.
+    // If orientation is DOWN,   then u = x and v = y.
+    // If orientation is ACROSS, then u = y and v = x.
     Function<Position, Position> changeDomain =
         position ->
             new Position(

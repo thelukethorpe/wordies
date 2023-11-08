@@ -14,7 +14,7 @@ public class SnakeCrosswordPainter extends CrosswordPainter {
       Random random,
       WordFactory wordFactory,
       HintFactory hintFactory) {
-    Orientation orientation = random.nextBoolean() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+    Orientation orientation = random.nextBoolean() ? Orientation.ACROSS : Orientation.DOWN;
     addRandomWordSnakes(builder, orientation, random, wordFactory, hintFactory);
     addRandomWordSnakes(builder, orientation.flip(), random, wordFactory, hintFactory);
   }
@@ -25,8 +25,8 @@ public class SnakeCrosswordPainter extends CrosswordPainter {
       Random random,
       WordFactory wordFactory,
       HintFactory hintFactory) {
-    // If orientation is HORIZONTAL, then u = x and v = y.
-    // If orientation is VERTICAL,   then u = y and v = x.
+    // If orientation is ACROSS, then u = x and v = y.
+    // If orientation is DOWN,   then u = y and v = x.
     Position xyDimensions = new Position(builder.getWidth(), builder.getHeight());
     Position uvDimensions =
         new Position(

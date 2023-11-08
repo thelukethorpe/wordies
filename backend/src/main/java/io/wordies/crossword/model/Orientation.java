@@ -1,13 +1,13 @@
 package io.wordies.crossword.model;
 
 public enum Orientation {
-  HORIZONTAL,
-  VERTICAL;
+  ACROSS,
+  DOWN;
 
   public Orientation flip() {
-    if (this == VERTICAL) {
-      return HORIZONTAL;
+    if (this == DOWN) {
+      return ACROSS;
     }
-    return VERTICAL;
+    return DOWN;
   }
 }
