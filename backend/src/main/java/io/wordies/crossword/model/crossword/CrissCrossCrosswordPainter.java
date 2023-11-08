@@ -7,16 +7,22 @@ import io.wordies.crossword.model.WordFactory;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CrissCrossCrosswordFactory extends CrosswordFactory {
+public class CrissCrossCrosswordPainter extends CrosswordPainter {
+  int maxOffset = 1;
+
+  public void setMaxOffset(int maxOffset) {
+    this.maxOffset = maxOffset;
+  }
 
   @Override
-  public Crossword getRandomCrossword(
-      Random random, WordFactory wordFactory, HintFactory hintFactory) {
+  public void paintCrossword(
+      RandomCrosswordBuilder builder,
+      Random random,
+      WordFactory wordFactory,
+      HintFactory hintFactory) {
     Orientation orientation = random.nextBoolean() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-    RandomCrosswordBuilder builder = new RandomCrosswordBuilder(width, height);
     addRandomWords(builder, orientation, random, wordFactory, hintFactory);
     addRandomWords(builder, orientation.flip(), random, wordFactory, hintFactory);
-    return builder.build();
   }
 
   private void addRandomWords(
@@ -31,7 +37,7 @@ public class CrissCrossCrosswordFactory extends CrosswordFactory {
         position ->
             new Position(
                 position.getComponent(orientation.flip()), position.getComponent(orientation));
-    Position xyDimensions = new Position(width, height);
+    Position xyDimensions = new Position(builder.getWidth(), builder.getHeight());
     Position uvDimensions = changeDomain.apply(xyDimensions);
 
     for (int u = 0; u < uvDimensions.x(); u++) {

@@ -9,7 +9,7 @@ public class RandomCrosswordBuilder {
   private final Map<Position, Character> positionToCharacterMap = new HashMap<>();
   private final List<Question> questions = new LinkedList<>();
 
-  RandomCrosswordBuilder(int width, int height) {
+  public RandomCrosswordBuilder(int width, int height) {
     this.width = width;
     this.height = height;
   }
@@ -18,7 +18,15 @@ public class RandomCrosswordBuilder {
     return new Crossword(width, height, questions);
   }
 
-  public int addRandomWord(
+  int getWidth() {
+    return width;
+  }
+
+  int getHeight() {
+    return height;
+  }
+
+  int addRandomWord(
       Position position,
       Orientation orientation,
       int minWordLength,
@@ -26,7 +34,7 @@ public class RandomCrosswordBuilder {
       Random random,
       WordFactory wordFactory,
       HintFactory hintFactory) {
-    //     TODO abstract these to functions
+    // TODO abstract these to functions
     if (positionToCharacterMap.containsKey(position.translate(-1, orientation))) {
       return 0;
     }

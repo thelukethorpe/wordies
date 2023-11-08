@@ -7,15 +7,16 @@ import io.wordies.crossword.model.WordFactory;
 import io.wordies.util.MathUtils;
 import java.util.Random;
 
-public class SnakeCrosswordFactory extends CrosswordFactory {
+public class SnakeCrosswordPainter extends CrosswordPainter {
   @Override
-  public Crossword getRandomCrossword(
-      Random random, WordFactory wordFactory, HintFactory hintFactory) {
+  public void paintCrossword(
+      RandomCrosswordBuilder builder,
+      Random random,
+      WordFactory wordFactory,
+      HintFactory hintFactory) {
     Orientation orientation = random.nextBoolean() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-    RandomCrosswordBuilder builder = new RandomCrosswordBuilder(width, height);
     addRandomWordSnakes(builder, orientation, random, wordFactory, hintFactory);
     addRandomWordSnakes(builder, orientation.flip(), random, wordFactory, hintFactory);
-    return builder.build();
   }
 
   private void addRandomWordSnakes(
@@ -26,7 +27,7 @@ public class SnakeCrosswordFactory extends CrosswordFactory {
       HintFactory hintFactory) {
     // If orientation is HORIZONTAL, then u = x and v = y.
     // If orientation is VERTICAL,   then u = y and v = x.
-    Position xyDimensions = new Position(width, height);
+    Position xyDimensions = new Position(builder.getWidth(), builder.getHeight());
     Position uvDimensions =
         new Position(
             xyDimensions.getComponent(orientation), xyDimensions.getComponent(orientation.flip()));
@@ -66,11 +67,11 @@ public class SnakeCrosswordFactory extends CrosswordFactory {
         int next = random.nextInt(minWordLength + 1);
         position = position.translate(-next, orientation);
       }
-      position = clampToBounds(position);
+      position = clampToBounds(position, builder.getWidth(), builder.getHeight());
     }
   }
 
-  private Position clampToBounds(Position position) {
+  private Position clampToBounds(Position position, int width, int height) {
     int x = MathUtils.clamp(position.x(), 0, width - 1);
     int y = MathUtils.clamp(position.y(), 0, height - 1);
     return new Position(x, y);

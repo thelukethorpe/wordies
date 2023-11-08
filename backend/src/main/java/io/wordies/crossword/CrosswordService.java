@@ -3,9 +3,7 @@ package io.wordies.crossword;
 import io.wordies.config.PropertiesConfig;
 import io.wordies.crossword.model.Orientation;
 import io.wordies.crossword.model.Question;
-import io.wordies.crossword.model.crossword.Crossword;
-import io.wordies.crossword.model.crossword.CrosswordFactory;
-import io.wordies.crossword.model.crossword.SnakeCrosswordFactory;
+import io.wordies.crossword.model.crossword.*;
 import io.wordies.crossword.repository.CrosswordRepository;
 import java.util.Random;
 import java.util.TreeMap;
@@ -30,15 +28,20 @@ public class CrosswordService {
 
   public Crossword getRandomCrossword(int width, int height, int minWordLength, int maxWordLength) {
     TreeMap<Double, Crossword> qualityCoefficientToCrosswordMap = new TreeMap<>();
-    CrosswordFactory crosswordFactory = new SnakeCrosswordFactory();
-    crosswordFactory.setWidth(width);
-    crosswordFactory.setHeight(height);
-    crosswordFactory.setMinWordLength(minWordLength);
-    crosswordFactory.setMaxWordLength(maxWordLength);
-    crosswordFactory.setMaxOffset(MAX_OFFSET);
+    SnakeCrosswordPainter snakeCrosswordPainter = new SnakeCrosswordPainter();
+    snakeCrosswordPainter.setMinWordLength(minWordLength);
+    snakeCrosswordPainter.setMaxWordLength(maxWordLength);
+    CrissCrossCrosswordPainter crissCrossCrosswordPainter = new CrissCrossCrosswordPainter();
+    crissCrossCrosswordPainter.setMinWordLength(minWordLength);
+    crissCrossCrosswordPainter.setMaxWordLength(maxWordLength);
+    crissCrossCrosswordPainter.setMaxOffset(MAX_OFFSET);
     for (int i = 0; i < qualityAssuranceSampleSize; i++) {
-      Crossword crossword =
-          crosswordFactory.getRandomCrossword(random, crosswordRepository, crosswordRepository);
+      RandomCrosswordBuilder builder = new RandomCrosswordBuilder(width, height);
+      snakeCrosswordPainter.paintCrossword(
+          builder, random, crosswordRepository, crosswordRepository);
+      crissCrossCrosswordPainter.paintCrossword(
+          builder, random, crosswordRepository, crosswordRepository);
+      Crossword crossword = builder.build();
       double qualityCoefficient = getCrosswordQualityCoefficient(crossword);
       qualityCoefficientToCrosswordMap.put(qualityCoefficient, crossword);
     }
