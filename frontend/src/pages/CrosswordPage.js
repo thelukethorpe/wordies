@@ -9,6 +9,7 @@ import Api from "../constants/Api";
 import { Button, CardActionArea, Divider } from "@mui/material";
 import Keyboard from "../components/Keyboard";
 import { useForceUpdate } from "../utils/Hooks";
+import { Tile } from "../components/Tile";
 
 function ListCard(props) {
   const titleFontSize = 30;
@@ -71,29 +72,6 @@ function HintCard(props) {
   );
 }
 
-function Tile(props) {
-  const characterFontSize = 30;
-  const indexFontSize = 12;
-  return (
-    <Card
-      style={{
-        ...props.style,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }}>
-      <CardContent>
-        <Typography style={{ fontSize: indexFontSize, top: 0, left: 2, position: "absolute" }}>
-          <b>{props.index}</b>
-        </Typography>
-        <Typography style={{ fontSize: characterFontSize, marginTop: 5 }}>
-          <b>{props.character}</b>
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
 function ClickableTile(props) {
   const characterFontSize = 30;
   const indexFontSize = 12;
@@ -105,7 +83,9 @@ function ClickableTile(props) {
           ...props.style,
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
+          justifyContent: "center",
+          width: props.size,
+          height: props.size
         }}>
         <CardContent>
           <Typography style={{ fontSize: indexFontSize, top: 0, left: 2, position: "absolute" }}>
@@ -129,22 +109,19 @@ function CrosswordTile(props) {
   const front = props.contents.isCorrect ? (
     <Tile
       character={props.contents.answer}
-      index={props.contents.index}
-      style={{
-        backgroundColor: theme.successColor,
-        width: size,
-        height: size
-      }}
+      size={size}
+      style={{ backgroundColor: theme.successColor }}
     />
   ) : (
-    <Tile style={{ backgroundColor: theme.primaryColor, width: size, height: size }} />
+    <Tile size={size} style={{ backgroundColor: theme.primaryColor }} />
   );
   const back = (
     <ClickableTile
-      style={{ backgroundColor: backColor, width: size, height: size }}
+      onClick={props.contents.onClick}
       character={props.contents.guess}
       index={props.contents.index}
-      onClick={props.contents.onClick}
+      size={size}
+      style={{ backgroundColor: backColor }}
     />
   );
   return (
