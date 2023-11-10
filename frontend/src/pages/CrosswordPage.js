@@ -6,11 +6,60 @@ import { useTheme } from "../theme";
 import { useEffect, useMemo, useState } from "react";
 import Flippable from "../components/Flippable";
 import Api from "../constants/Api";
-import { CardActionArea, Divider } from "@mui/material";
+import { CardActionArea, Dialog, DialogTitle, Divider } from "@mui/material";
 import Keyboard from "../components/Keyboard";
 import { useForceUpdate } from "../utils/Hooks";
 import { Tile } from "../components/Tile";
 import Keys from "../constants/Keys";
+import Orientation from "../constants/Orientation";
+
+function TileIntersectionDialog(props) {
+  const theme = useTheme();
+  const handleClose = () => {
+    props.onClose(null);
+  };
+
+  const handleSelection = (orientation) => {
+    props.onClose(orientation);
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={props.isOpen}>
+      <DialogTitle sx={{ fontWeight: "bold" }}>Which direction?</DialogTitle>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: 25,
+          backgroundColor: theme.backgroundColor
+        }}>
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+          <CrosswordTile contents={{ guess: props.guess, answer: "?", index: props.index }} />
+          <CrosswordTile
+            contents={{
+              guess: "→",
+              answer: "?",
+              isSelected: true,
+              onClick: () => handleSelection(Orientation.ACROSS)
+            }}
+          />
+        </div>
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+          <CrosswordTile
+            contents={{
+              guess: "↓",
+              answer: "?",
+              isSelected: true,
+              onClick: () => handleSelection(Orientation.DOWN)
+            }}
+          />
+          <CrosswordTile contents={{ answer: "" }} />
+        </div>
+      </div>
+    </Dialog>
+  );
+}
 
 function ListCard(props) {
   const titleFontSize = 30;
@@ -163,13 +212,13 @@ function CrosswordGrid(props) {
 }
 
 function Translate(position, distance, orientation) {
-  if (orientation === "ACROSS") {
+  if (orientation === Orientation.ACROSS) {
     return [position.x + distance, position.y];
   }
   return [position.x, position.y + distance];
 }
 
-function ParseGetResponse(json, setSelectedPosition) {
+function ParseGetResponse(json, handleTileClick) {
   const width = json.width;
   const height = json.height;
   const questions = json.questions.sort((q1, q2) => {
@@ -198,8 +247,7 @@ function ParseGetResponse(json, setSelectedPosition) {
         gridTile.isIntersection = false;
         gridTile.isSelected = false;
         gridTile.onClick = () => {
-          const selectedPosition = { x: x, y: y, orientation: question.orientation };
-          setSelectedPosition(selectedPosition);
+          handleTileClick({ x: x, y: y, orientation: question.orientation }, gridContents);
         };
       } else {
         gridTile.isIntersection = true;
@@ -218,7 +266,7 @@ function ParseGetResponse(json, setSelectedPosition) {
       length: question.answer.length,
       hasBeenFound: false
     };
-    if (question.orientation === "ACROSS") {
+    if (question.orientation === Orientation.ACROSS) {
       acrossHints[answerIndex] = hint;
     } else {
       downHints[answerIndex] = hint;
@@ -250,27 +298,9 @@ export default function CrosswordPage() {
   const [downHints, setDownHints] = useState({});
   const [answers, setAnswers] = useState([]);
   const [selectedPosition, setSelectedPosition] = useState(null);
+  const [tileIntersectionDialogProps, setTileIntersectionDialogProps] = useState({ isOpen: false });
 
-  const onKeyDown = (key) => {
-    if (key === Keys.ENTER) {
-      CheckGuesses();
-      return;
-    }
-    if (!selectedPosition) {
-      return;
-    }
-    const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
-    gridTile.guess = key.toLowerCase();
-    const [nextX, nextY] = Translate(selectedPosition, 1, selectedPosition.orientation);
-    if (nextX < width && nextY < height && gridContents[nextX][nextY].answer) {
-      const nextPosition = { x: nextX, y: nextY, orientation: selectedPosition.orientation };
-      setSelectedPosition(nextPosition);
-    } else {
-      setSelectedPosition(null);
-    }
-  };
-
-  const CheckGuesses = () => {
+  const checkGuesses = () => {
     for (let index = 0; index < answers.length; index++) {
       const answer = answers[index];
       const correctGridTiles = [];
@@ -298,6 +328,89 @@ export default function CrosswordPage() {
     forceUpdate();
   };
 
+  const handleKeyDown = (key) => {
+    if (key === Keys.ENTER) {
+      checkGuesses();
+      return;
+    }
+    if (!selectedPosition) {
+      return;
+    }
+    {
+      const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
+      gridTile.guess = key.toLowerCase();
+    }
+    const next = (position) => {
+      const [nextX, nextY] = Translate(position, 1, position.orientation);
+      return {
+        x: nextX,
+        y: nextY,
+        orientation: position.orientation
+      };
+    };
+    let candidatePosition = null;
+    let nextPosition = next(selectedPosition);
+    while (nextPosition.x < width && nextPosition.y < height) {
+      const gridTile = gridContents[nextPosition.x][nextPosition.y];
+      if (!gridTile.answer) {
+        break;
+      }
+      if (!gridTile.isCorrect) {
+        candidatePosition = nextPosition;
+        break;
+      }
+      nextPosition = next(nextPosition);
+    }
+    setSelectedPosition(candidatePosition);
+  };
+
+  const handleTileClick = (position, gridContents) => {
+    const gridTile = gridContents[position.x][position.y];
+    if (!gridTile.isIntersection) {
+      setSelectedPosition(position);
+      return;
+    }
+    const isNextPositionViable = (orientation) => {
+      const [nextX, nextY] = Translate(position, 1, orientation);
+      if (nextX < width && nextY < height) {
+        const gridTile = gridContents[nextX][nextY];
+        return gridTile.answer && !gridTile.isCorrect;
+      }
+      return false;
+    };
+    const viableOrientations = [];
+    for (const orientation of [Orientation.ACROSS, Orientation.DOWN]) {
+      if (isNextPositionViable(orientation)) {
+        viableOrientations.push(orientation);
+      }
+    }
+
+    if (viableOrientations.length > 1) {
+      const gridTile = gridContents[position.x][position.y];
+      const tileIntersectionDialogProps = {
+        position: position,
+        guess: gridTile.guess,
+        index: gridTile.index,
+        isOpen: true
+      };
+      setTileIntersectionDialogProps(tileIntersectionDialogProps);
+    } else {
+      position.orientation = viableOrientations[0];
+      setSelectedPosition(position);
+    }
+  };
+
+  const handleTileIntersectionDialogClose = (orientation) => {
+    let position = tileIntersectionDialogProps.position;
+    position.orientation = orientation
+      ? orientation
+      : Math.random() < 0.5
+      ? Orientation.ACROSS
+      : Orientation.DOWN;
+    setSelectedPosition(position);
+    setTileIntersectionDialogProps({ isOpen: false });
+  };
+
   useEffect(() => {
     fetch(
       `${Api.CROSSWORD}?width=${width}&height=${height}&minWordLength=${minWordLength}&maxWordLength=${maxWordLength}`
@@ -308,7 +421,7 @@ export default function CrosswordPage() {
       .then((json) => {
         const [newGridContents, newAcrossHints, newDownHints, answers] = ParseGetResponse(
           json,
-          setSelectedPosition
+          handleTileClick
         );
         setGridContents(newGridContents);
         setAcrossHints(newAcrossHints);
@@ -339,7 +452,13 @@ export default function CrosswordPage() {
         <HintCard hints={acrossHints} title={"Across"} />
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <CrosswordGrid width={width} height={height} gridContents={gridContents} />
-          <Keyboard onKeyDown={onKeyDown} />
+          <Keyboard onKeyDown={handleKeyDown} />
+          <TileIntersectionDialog
+            isOpen={tileIntersectionDialogProps.isOpen}
+            onClose={handleTileIntersectionDialogClose}
+            guess={tileIntersectionDialogProps.guess}
+            index={tileIntersectionDialogProps.index}
+          />
         </div>
         <HintCard hints={downHints} title={"Down"} />
       </div>
