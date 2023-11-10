@@ -251,26 +251,7 @@ export default function CrosswordPage() {
   const [answers, setAnswers] = useState([]);
   const [selectedPosition, setSelectedPosition] = useState(null);
 
-  const onKeyDown = (key) => {
-    if (key === Keys.ENTER) {
-      CheckGuesses();
-      return;
-    }
-    if (!selectedPosition) {
-      return;
-    }
-    const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
-    gridTile.guess = key.toLowerCase();
-    const [nextX, nextY] = Translate(selectedPosition, 1, selectedPosition.orientation);
-    if (nextX < width && nextY < height && gridContents[nextX][nextY].answer) {
-      const nextPosition = { x: nextX, y: nextY, orientation: selectedPosition.orientation };
-      setSelectedPosition(nextPosition);
-    } else {
-      setSelectedPosition(null);
-    }
-  };
-
-  const CheckGuesses = () => {
+  const checkGuesses = () => {
     for (let index = 0; index < answers.length; index++) {
       const answer = answers[index];
       const correctGridTiles = [];
@@ -296,6 +277,25 @@ export default function CrosswordPage() {
       }
     }
     forceUpdate();
+  };
+
+  const onKeyDown = (key) => {
+    if (key === Keys.ENTER) {
+      checkGuesses();
+      return;
+    }
+    if (!selectedPosition) {
+      return;
+    }
+    const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
+    gridTile.guess = key.toLowerCase();
+    const [nextX, nextY] = Translate(selectedPosition, 1, selectedPosition.orientation);
+    if (nextX < width && nextY < height && gridContents[nextX][nextY].answer) {
+      const nextPosition = { x: nextX, y: nextY, orientation: selectedPosition.orientation };
+      setSelectedPosition(nextPosition);
+    } else {
+      setSelectedPosition(null);
+    }
   };
 
   useEffect(() => {
