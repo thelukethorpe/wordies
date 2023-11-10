@@ -6,10 +6,11 @@ import { useTheme } from "../theme";
 import { useEffect, useMemo, useState } from "react";
 import Flippable from "../components/Flippable";
 import Api from "../constants/Api";
-import { Button, CardActionArea, Divider } from "@mui/material";
+import { CardActionArea, Divider } from "@mui/material";
 import Keyboard from "../components/Keyboard";
 import { useForceUpdate } from "../utils/Hooks";
 import { Tile } from "../components/Tile";
+import Keys from "../constants/Keys";
 
 function ListCard(props) {
   const titleFontSize = 30;
@@ -233,7 +234,6 @@ function ParseGetResponse(json, setSelectedPosition) {
 }
 
 export default function CrosswordPage() {
-  const theme = useTheme();
   const forceUpdate = useForceUpdate();
   const width = 15;
   const height = 15;
@@ -252,6 +252,10 @@ export default function CrosswordPage() {
   const [selectedPosition, setSelectedPosition] = useState(null);
 
   const onKeyDown = (key) => {
+    if (key === Keys.ENTER) {
+      CheckGuesses();
+      return;
+    }
     if (!selectedPosition) {
       return;
     }
@@ -266,7 +270,7 @@ export default function CrosswordPage() {
     }
   };
 
-  const onCheck = () => {
+  const CheckGuesses = () => {
     for (let index = 0; index < answers.length; index++) {
       const answer = answers[index];
       const correctGridTiles = [];
@@ -336,12 +340,6 @@ export default function CrosswordPage() {
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <CrosswordGrid width={width} height={height} gridContents={gridContents} />
           <Keyboard onKeyDown={onKeyDown} />
-          <Button
-            onClick={onCheck}
-            variant="contained"
-            style={{ padding: 5, backgroundColor: theme.successColor }}>
-            <b>Check</b>
-          </Button>
         </div>
         <HintCard hints={downHints} title={"Down"} />
       </div>
