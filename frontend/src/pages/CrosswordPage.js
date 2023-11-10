@@ -40,6 +40,7 @@ function ListCard(props) {
                     textDecoration: hint.hasBeenFound ? "line-through" : "none"
                   }}>
                   {hint.text}
+                  <b> ({hint.length}&nbsp;letters)</b>
                 </Typography>
               </div>
             </div>
@@ -53,7 +54,7 @@ function ListCard(props) {
 function HintCard(props) {
   const theme = useTheme();
   const padding = 5;
-  const width = "10em";
+  const width = "12em";
   const height = "30em";
   const isFlipped = Object.entries(props.hints).length !== 0;
   const front = (
@@ -210,7 +211,12 @@ function ParseGetResponse(json, setSelectedPosition) {
     gridTile.index = displayIndex;
     const randomHintIndex = Math.floor(Math.random() * question.hints.length);
     const hintText = question.hints[randomHintIndex];
-    const hint = { index: displayIndex, text: hintText, hasBeenFound: false };
+    const hint = {
+      index: displayIndex,
+      text: hintText,
+      length: question.answer.length,
+      hasBeenFound: false
+    };
     if (question.orientation === "ACROSS") {
       acrossHints[answerIndex] = hint;
     } else {

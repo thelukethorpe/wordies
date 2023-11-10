@@ -58,7 +58,6 @@ export default function HomePage() {
     isFlipped[index] = !isFlipped[index];
     forceUpdate();
     const nextFlip = flipIntervalDistribution.sample() + 10000.0;
-    console.log(nextFlip);
     setTimeout(() => {
       flip(index);
     }, nextFlip);
