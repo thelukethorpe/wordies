@@ -287,15 +287,30 @@ export default function CrosswordPage() {
     if (!selectedPosition) {
       return;
     }
-    const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
-    gridTile.guess = key.toLowerCase();
-    const [nextX, nextY] = Translate(selectedPosition, 1, selectedPosition.orientation);
-    if (nextX < width && nextY < height && gridContents[nextX][nextY].answer) {
-      const nextPosition = { x: nextX, y: nextY, orientation: selectedPosition.orientation };
-      setSelectedPosition(nextPosition);
-    } else {
-      setSelectedPosition(null);
+    {
+      const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
+      gridTile.guess = key.toLowerCase();
     }
+    const next = (position) => {
+      const [nextX, nextY] = Translate(position, 1, position.orientation);
+      return {
+        x: nextX,
+        y: nextY,
+        orientation: position.orientation
+      };
+    };
+    let nextPosition = next(selectedPosition);
+    while (nextPosition.x < width && nextPosition.y < height) {
+      const gridTile = gridContents[nextPosition.x][nextPosition.y];
+      if (!gridTile.answer) {
+        nextPosition = null;
+        break;
+      } else if (!gridTile.isCorrect) {
+        break;
+      }
+      nextPosition = next(nextPosition);
+    }
+    setSelectedPosition(nextPosition);
   };
 
   useEffect(() => {
