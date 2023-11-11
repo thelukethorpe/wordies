@@ -7,7 +7,7 @@ public class RandomCrosswordBuilder {
   private final int width;
   private final int height;
   private final Map<Position, Character> positionToCharacterMap = new HashMap<>();
-  private final List<Question> questions = new LinkedList<>();
+  private final Map<String, Question> questions = new HashMap<>();
 
   public RandomCrosswordBuilder(int width, int height) {
     this.width = width;
@@ -15,7 +15,7 @@ public class RandomCrosswordBuilder {
   }
 
   public Crossword build() {
-    return new Crossword(width, height, questions);
+    return new Crossword(width, height, new ArrayList<>(questions.values()));
   }
 
   int getWidth() {
@@ -84,7 +84,7 @@ public class RandomCrosswordBuilder {
     }
 
     words.addAll(wordFactory.getWords(queries, minWordLength, maxWordLength));
-    questions.forEach(question -> words.remove(question.answer()));
+    questions.values().forEach(question -> words.remove(question.answer()));
 
     return words.stream()
         .skip(random.nextLong(words.size()))
@@ -100,7 +100,16 @@ public class RandomCrosswordBuilder {
       positionToCharacterMap.put(position.translate(index, orientation), word.charAt(index));
     }
     List<String> hints = hintFactory.getHints(word);
-    questions.add(new Question(position, orientation, hints, word));
+    questions.put(word, new Question(position, orientation, hints, word));
+    cullSmallerSubstrings(word);
     return word.length();
+  }
+
+  private void cullSmallerSubstrings(String word) {
+    questions.keySet().stream()
+        .filter(key -> key.contains(word) || word.contains(key))
+        .sorted((s1, s2) -> Comparator.comparingInt(String::length).reversed().compare(s1, s2))
+        .skip(1)
+        .forEach(questions::remove);
   }
 }
