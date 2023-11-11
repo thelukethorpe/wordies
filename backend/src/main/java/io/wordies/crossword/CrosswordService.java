@@ -1,50 +1,71 @@
 package io.wordies.crossword;
 
+import static org.apache.logging.log4j.Level.ERROR;
+
+import io.wordies.component.ExecutorComponent;
 import io.wordies.config.PropertiesConfig;
 import io.wordies.crossword.model.Orientation;
 import io.wordies.crossword.model.Position;
 import io.wordies.crossword.model.Question;
 import io.wordies.crossword.model.crossword.*;
 import io.wordies.crossword.repository.CrosswordRepository;
+import io.wordies.util.ErrorUtils;
+import io.wordies.util.structure.BlockingConcurrentPercentileSampler;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CrosswordService {
+  private static final Logger LOGGER = LogManager.getLogger(CrosswordService.class);
   private final Random random = new Random();
   private final CrosswordRepository crosswordRepository;
-  private final int maxOffset;
-  private final int qualityAssuranceSampleSize;
+  private final CrosswordFactory crosswordFactory;
+
+  private final double qualityAssuranceThreshold;
+  private final BlockingConcurrentPercentileSampler<Crossword> crosswordPercentileSampler;
+  private final ExecutorComponent executorComponent;
 
   @Autowired
   public CrosswordService(
-      CrosswordRepository crosswordRepository, PropertiesConfig propertiesConfig) {
+      CrosswordRepository crosswordRepository,
+      PropertiesConfig propertiesConfig,
+      ExecutorComponent executorComponent) {
     this.crosswordRepository = crosswordRepository;
-    this.maxOffset = propertiesConfig.getCrosswordParametersOffsetMax();
-    this.qualityAssuranceSampleSize = propertiesConfig.getCrosswordQualityAssuranceSampleSize();
+    this.crosswordFactory = new CrosswordFactory(crosswordRepository, crosswordRepository);
+    this.crosswordFactory.setWidth(propertiesConfig.getCrosswordParametersWidth());
+    this.crosswordFactory.setHeight(propertiesConfig.getCrosswordParametersHeight());
+    this.crosswordFactory.setMinWordLength(propertiesConfig.getCrosswordParametersWordLengthMin());
+    this.crosswordFactory.setMaxWordLength(propertiesConfig.getCrosswordParametersWordLengthMax());
+    this.crosswordFactory.setMaxOffset(propertiesConfig.getCrosswordParametersOffsetMax());
+    this.qualityAssuranceThreshold = propertiesConfig.getCrosswordQualityAssuranceThreshold();
+    this.crosswordPercentileSampler =
+        new BlockingConcurrentPercentileSampler<>(
+            propertiesConfig.getCrosswordQualityAssuranceSampleSizeMin(),
+            propertiesConfig.getCrosswordQualityAssuranceSampleSizeMax());
+    this.executorComponent = executorComponent;
+    for (int i = 0; i < propertiesConfig.getCrosswordWorkers(); i++) {
+      executorComponent.runOnLoop(
+          () -> {
+            Crossword crossword = crosswordFactory.getRandomCrossword(random);
+            try {
+              crosswordPercentileSampler.offer(
+                  crossword, getCrosswordQualityCoefficient(crossword));
+            } catch (InterruptedException e) {
+              LOGGER.log(ERROR, ErrorUtils.toErrorMessage(e));
+            }
+          });
+    }
   }
 
-  public Crossword getRandomCrossword(int width, int height, int minWordLength, int maxWordLength) {
-    TreeMap<Double, Crossword> qualityCoefficientToCrosswordMap = new TreeMap<>();
-    SnakeCrosswordPainter snakeCrosswordPainter = new SnakeCrosswordPainter();
-    snakeCrosswordPainter.setMinWordLength(minWordLength);
-    snakeCrosswordPainter.setMaxWordLength(maxWordLength);
-    CrissCrossCrosswordPainter crissCrossCrosswordPainter = new CrissCrossCrosswordPainter();
-    crissCrossCrosswordPainter.setMinWordLength(minWordLength);
-    crissCrossCrosswordPainter.setMaxWordLength(maxWordLength);
-    crissCrossCrosswordPainter.setMaxOffset(maxOffset);
-    for (int i = 0; i < qualityAssuranceSampleSize; i++) {
-      RandomCrosswordBuilder builder = new RandomCrosswordBuilder(width, height);
-      snakeCrosswordPainter.paintCrossword(
-          builder, random, crosswordRepository, crosswordRepository);
-      crissCrossCrosswordPainter.paintCrossword(
-          builder, random, crosswordRepository, crosswordRepository);
-      Crossword crossword = builder.build();
-      double qualityCoefficient = getCrosswordQualityCoefficient(crossword);
-      qualityCoefficientToCrosswordMap.put(qualityCoefficient, crossword);
+  public Crossword getRandomCrossword() {
+    try {
+      return crosswordPercentileSampler.poll(qualityAssuranceThreshold);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
-    return qualityCoefficientToCrosswordMap.lastEntry().getValue();
   }
 
   private double getCrosswordQualityCoefficient(Crossword crossword) {
