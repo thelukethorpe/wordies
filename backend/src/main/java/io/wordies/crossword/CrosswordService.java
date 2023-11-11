@@ -12,18 +12,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CrosswordService {
-
-  private static final int MAX_OFFSET = 1;
-
   private final Random random = new Random();
   private final CrosswordRepository crosswordRepository;
+  private final int maxOffset;
   private final int qualityAssuranceSampleSize;
 
   @Autowired
   public CrosswordService(
       CrosswordRepository crosswordRepository, PropertiesConfig propertiesConfig) {
     this.crosswordRepository = crosswordRepository;
-    qualityAssuranceSampleSize = propertiesConfig.getCrosswordQualityAssuranceSampleSize();
+    this.maxOffset = propertiesConfig.getCrosswordParametersOffsetMax();
+    this.qualityAssuranceSampleSize = propertiesConfig.getCrosswordQualityAssuranceSampleSize();
   }
 
   public Crossword getRandomCrossword(int width, int height, int minWordLength, int maxWordLength) {
@@ -34,7 +33,7 @@ public class CrosswordService {
     CrissCrossCrosswordPainter crissCrossCrosswordPainter = new CrissCrossCrosswordPainter();
     crissCrossCrosswordPainter.setMinWordLength(minWordLength);
     crissCrossCrosswordPainter.setMaxWordLength(maxWordLength);
-    crissCrossCrosswordPainter.setMaxOffset(MAX_OFFSET);
+    crissCrossCrosswordPainter.setMaxOffset(maxOffset);
     for (int i = 0; i < qualityAssuranceSampleSize; i++) {
       RandomCrosswordBuilder builder = new RandomCrosswordBuilder(width, height);
       snakeCrosswordPainter.paintCrossword(
