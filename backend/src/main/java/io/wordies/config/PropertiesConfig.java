@@ -26,6 +26,9 @@ public class PropertiesConfig {
   @Value("${crossword.parameters.word.length.max}")
   private Integer crosswordParametersWordLengthMax;
 
+  @Value("${crossword.parameters.offset.max}")
+  private Integer crosswordParametersOffsetMax;
+
   @Value("${crossword.repository.path}")
   private String crosswordRepositoryPath;
 
@@ -57,6 +60,10 @@ public class PropertiesConfig {
 
   public Integer getCrosswordParametersWordLengthMax() {
     return crosswordParametersWordLengthMax;
+  }
+
+  public Integer getCrosswordParametersOffsetMax() {
+    return crosswordParametersOffsetMax;
   }
 
   public String getCrosswordRepositoryPath() {
