@@ -6,13 +6,50 @@ import { useTheme } from "../theme";
 import { useEffect, useMemo, useState } from "react";
 import Flippable from "../components/Flippable";
 import Api from "../constants/Api";
-import { CardActionArea, Dialog, DialogTitle, Divider } from "@mui/material";
+import { Button, CardActionArea, Dialog, DialogTitle, Divider } from "@mui/material";
 import Keyboard from "../components/Keyboard";
 import { useForceUpdate } from "../utils/Hooks";
 import { Tile } from "../components/Tile";
 import Keys from "../constants/Keys";
 import Orientation from "../constants/Orientation";
+import ConfettiExplosion from "react-confetti-explosion";
+import Paths from "../constants/Paths";
+import { useNavigate } from "react-router-dom";
+import HomeIcon from "@mui/icons-material/Home";
 
+function CrosswordCompleteDialog(props) {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const navigateHome = () => {
+    navigate(Paths.HOME);
+  };
+  const playAgain = () => {
+    window.location.reload();
+  };
+
+  return (
+    <Dialog onClose={playAgain} open={props.isOpen}>
+      <DialogTitle sx={{ fontWeight: "bold" }}>🎉 Congratulations! 🎉</DialogTitle>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20,
+          backgroundColor: theme.backgroundColor
+        }}>
+        <Button variant="contained" onClick={playAgain} size="large">
+          Play again
+        </Button>
+        <br />
+        <Button variant="contained" onClick={navigateHome} size="large" endIcon={<HomeIcon />}>
+          Home
+        </Button>
+      </div>
+    </Dialog>
+  );
+}
 function TileIntersectionDialog(props) {
   const theme = useTheme();
   const handleClose = () => {
@@ -295,10 +332,13 @@ export default function CrosswordPage() {
   const [acrossHints, setAcrossHints] = useState({});
   const [downHints, setDownHints] = useState({});
   const [answers, setAnswers] = useState([]);
+  const [isConfettiExploding, setIsConfettiExploding] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [tileIntersectionDialogProps, setTileIntersectionDialogProps] = useState({ isOpen: false });
 
   const checkGuesses = () => {
+    let isComplete = true;
     for (let index = 0; index < answers.length; index++) {
       const answer = answers[index];
       const correctGridTiles = [];
@@ -312,6 +352,7 @@ export default function CrosswordPage() {
         }
       }
       if (answer.length !== correctGridTiles.length) {
+        isComplete = false;
         continue;
       }
       if (acrossHints[index]) {
@@ -322,6 +363,12 @@ export default function CrosswordPage() {
       for (const correctGridTile of correctGridTiles) {
         correctGridTile.isCorrect = true;
       }
+    }
+    if (isComplete) {
+      setIsConfettiExploding(true);
+      setTimeout(() => {
+        setIsComplete(true);
+      }, 2500);
     }
     forceUpdate();
   };
@@ -446,7 +493,16 @@ export default function CrosswordPage() {
     <div className="Page">
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
         <HintCard hints={acrossHints} title={"Across"} />
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {isConfettiExploding && (
+          <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
+        )}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
           <CrosswordGrid width={width} height={height} gridContents={gridContents} />
           <Keyboard onKeyDown={handleKeyDown} />
           <TileIntersectionDialog
@@ -455,7 +511,11 @@ export default function CrosswordPage() {
             guess={tileIntersectionDialogProps.guess}
             index={tileIntersectionDialogProps.index}
           />
+          <CrosswordCompleteDialog isOpen={isComplete} />
         </div>
+        {isConfettiExploding && (
+          <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
+        )}
         <HintCard hints={downHints} title={"Down"} />
       </div>
     </div>
