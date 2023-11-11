@@ -2,11 +2,11 @@ package io.wordies.crossword;
 
 import io.wordies.config.PropertiesConfig;
 import io.wordies.crossword.model.Orientation;
+import io.wordies.crossword.model.Position;
 import io.wordies.crossword.model.Question;
 import io.wordies.crossword.model.crossword.*;
 import io.wordies.crossword.repository.CrosswordRepository;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +51,14 @@ public class CrosswordService {
   private double getCrosswordQualityCoefficient(Crossword crossword) {
     double uniformityCoefficient = getCrosswordUniformityCoefficient(crossword);
     double densityCoefficient = getCrosswordDensityCoefficient(crossword);
+    double connectivityCoefficient = getCrosswordConnectivityCoefficient(crossword);
     // Square uniformity coefficient to punish crosswords with low uniformity.
     // Double the density coefficient as we want dense crosswords more than we want uniform ones.
-    return uniformityCoefficient * uniformityCoefficient + 2.0 * densityCoefficient;
+    // Quadruple the connectivity coefficient as we want connected crosswords more than we want
+    // dense ones.
+    return uniformityCoefficient * uniformityCoefficient
+        + 2.0 * densityCoefficient
+        + 4.0 * connectivityCoefficient;
   }
 
   private double getCrosswordUniformityCoefficient(Crossword crossword) {
@@ -77,5 +82,31 @@ public class CrosswordService {
         crossword.questions().stream().map(Question::answer).mapToLong(String::length).sum();
     long gridSize = (long) crossword.width() * crossword.height();
     return occupiedTiles / (double) gridSize;
+  }
+
+  private double getCrosswordConnectivityCoefficient(Crossword crossword) {
+    int nextGroupIndex = 0;
+    Map<Position, Integer> positionToGroupIndexMap = new HashMap<>();
+    Map<Integer, Set<Position>> groupIndexToPositionsMap = new HashMap<>();
+    for (Question question : crossword.questions()) {
+      int groupIndex = nextGroupIndex++;
+      Set<Position> positions = new HashSet<>();
+      groupIndexToPositionsMap.put(groupIndex, positions);
+      for (int i = 0; i < question.answer().length(); i++) {
+        Position position = question.position().translate(i, question.orientation());
+        Integer intersectingGroupIndex = positionToGroupIndexMap.get(position);
+        positions.add(position);
+        positionToGroupIndexMap.put(position, groupIndex);
+        if (intersectingGroupIndex != null && intersectingGroupIndex != groupIndex) {
+          Set<Position> intersectingPositions =
+              groupIndexToPositionsMap.remove(intersectingGroupIndex);
+          positions.addAll(intersectingPositions);
+          for (Position intersectingPosition : intersectingPositions) {
+            positionToGroupIndexMap.replace(intersectingPosition, groupIndex);
+          }
+        }
+      }
+    }
+    return 1.0 / (double) groupIndexToPositionsMap.size();
   }
 }
