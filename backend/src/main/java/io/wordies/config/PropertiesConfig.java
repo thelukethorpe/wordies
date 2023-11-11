@@ -26,8 +26,20 @@ public class PropertiesConfig {
   @Value("${crossword.repository.path}")
   private String crosswordRepositoryPath;
 
-  @Value("${crossword.quality.assurance.sample.size}")
-  private int crosswordQualityAssuranceSampleSize;
+  @Value("${crossword.quality.assurance.sample.size.min}")
+  private Integer crosswordQualityAssuranceSampleSizeMin;
+
+  @Value("${crossword.quality.assurance.sample.size.max}")
+  private Integer crosswordQualityAssuranceSampleSizeMax;
+
+  @Value("${crossword.quality.assurance.threshold}")
+  private Double crosswordQualityAssuranceThreshold;
+
+  @Value("${crossword.workers}")
+  private Integer crosswordWorkers;
+
+  @Value("${executor.threads}")
+  private Integer executorThreads;
 
   @Value("${frontend.url}")
   private String frontendUrl;
@@ -56,8 +68,24 @@ public class PropertiesConfig {
     return crosswordRepositoryPath;
   }
 
-  public int getCrosswordQualityAssuranceSampleSize() {
-    return crosswordQualityAssuranceSampleSize;
+  public Integer getCrosswordQualityAssuranceSampleSizeMin() {
+    return crosswordQualityAssuranceSampleSizeMin;
+  }
+
+  public Integer getCrosswordQualityAssuranceSampleSizeMax() {
+    return crosswordQualityAssuranceSampleSizeMax;
+  }
+
+  public Double getCrosswordQualityAssuranceThreshold() {
+    return crosswordQualityAssuranceThreshold;
+  }
+
+  public Integer getCrosswordWorkers() {
+    return crosswordWorkers;
+  }
+
+  public Integer getExecutorThreads() {
+    return executorThreads;
   }
 
   public String getFrontendUrl() {
