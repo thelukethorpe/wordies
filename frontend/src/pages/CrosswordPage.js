@@ -285,8 +285,6 @@ export default function CrosswordPage() {
   const forceUpdate = useForceUpdate();
   const width = 15;
   const height = 15;
-  const minWordLength = 3;
-  const maxWordLength = 8;
   const [gridContents, setGridContents] = useState(
     Array.from({ length: width }).map(() => {
       return Array.from({ length: height }).map(() => {
@@ -412,9 +410,7 @@ export default function CrosswordPage() {
   };
 
   useEffect(() => {
-    fetch(
-      `${Api.CROSSWORD}?width=${width}&height=${height}&minWordLength=${minWordLength}&maxWordLength=${maxWordLength}`
-    )
+    fetch(Api.CROSSWORD)
       .then((response) => {
         return response.json();
       })

@@ -14,18 +14,26 @@ import org.springframework.stereotype.Service;
 public class CrosswordService {
   private final Random random = new Random();
   private final CrosswordRepository crosswordRepository;
-  private final int maxOffset;
-  private final int qualityAssuranceSampleSize;
+  private final int width,
+      height,
+      minWordLength,
+      maxWordLength,
+      maxOffset,
+      qualityAssuranceSampleSize;
 
   @Autowired
   public CrosswordService(
       CrosswordRepository crosswordRepository, PropertiesConfig propertiesConfig) {
     this.crosswordRepository = crosswordRepository;
+    this.width = propertiesConfig.getCrosswordParametersWidth();
+    this.height = propertiesConfig.getCrosswordParametersHeight();
+    this.minWordLength = propertiesConfig.getCrosswordParametersWordLengthMin();
     this.maxOffset = propertiesConfig.getCrosswordParametersOffsetMax();
+    this.maxWordLength = propertiesConfig.getCrosswordParametersWordLengthMax();
     this.qualityAssuranceSampleSize = propertiesConfig.getCrosswordQualityAssuranceSampleSize();
   }
 
-  public Crossword getRandomCrossword(int width, int height, int minWordLength, int maxWordLength) {
+  public Crossword getRandomCrossword() {
     TreeMap<Double, Crossword> qualityCoefficientToCrosswordMap = new TreeMap<>();
     SnakeCrosswordPainter snakeCrosswordPainter = new SnakeCrosswordPainter();
     snakeCrosswordPainter.setMinWordLength(minWordLength);
