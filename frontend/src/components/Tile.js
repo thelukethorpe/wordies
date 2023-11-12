@@ -10,13 +10,15 @@ export function Tile(props) {
   const left = 2 * scale;
   return (
     <Card
+      raised={props.raised}
       style={{
         ...props.style,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         width: props.size,
-        height: props.size
+        height: props.size,
+        position: "relative"
       }}>
       <CardContent>
         <Typography style={{ fontSize: indexFontSize, top: 0, left: left, position: "absolute" }}>
