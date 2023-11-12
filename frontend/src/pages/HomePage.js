@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./Page.css";
-import ClickableMediaCard from "../components/ClickableMediaCard";
-import CrosswordImage from "../assets/images/crossword.jpg";
-import Paths from "../constants/Paths";
-import { useNavigate } from "react-router-dom";
 import { useTheme } from "../theme";
 import { Tile } from "../components/Tile";
 import Flippable from "../components/Flippable";
 import { ExponentialDistribution } from "../utils/Maths";
 import { useForceUpdate } from "../utils/Hooks";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import { Button } from "@mui/material";
+import { HintCard } from "./CrosswordPage";
+import { useNavigate } from "react-router-dom";
+import Paths from "../constants/Paths";
 
 function HomePageTitleTile(props) {
   const theme = useTheme();
@@ -21,9 +23,10 @@ function HomePageTitleTile(props) {
       style={{
         backgroundColor: theme.accentColor
       }}
+      raised={true}
     />
   );
-  const back = <Tile character={props.character} index={props.index} size={size} />;
+  const back = <Tile character={props.character} index={props.index} size={size} raised={true} />;
   return (
     <div style={{ padding: padding, width: size, height: size, marginTop: 0 }}>
       <Flippable front={front} back={back} isFlipped={props.isFlipped} />
@@ -47,9 +50,68 @@ function HomePageTitle(props) {
   );
 }
 
+function CrosswordPortal() {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const portalTitle = "crosswords";
+  const tileIndices = [1];
+  const tilePadding = 2;
+  const tileSize = 50;
+  return (
+    <Card style={{ backgroundColor: theme.accentColor, padding: 5 }} raised={true}>
+      <CardContent
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            paddingBottom: 15
+          }}>
+          {Array.from({ length: portalTitle.length }).map((_, index) => (
+            <div
+              key={index}
+              style={{
+                padding: tilePadding
+              }}>
+              <Tile character={portalTitle[index]} index={tileIndices[index]} size={tileSize} />
+            </div>
+          ))}
+        </div>
+        <div>
+          <HintCard
+            title="Across"
+            hints={[
+              {
+                index: 1,
+                text: "A classic word-deduction game with AI-generated clues.",
+                length: 10
+              }
+            ]}
+            style={{ titleFontSize: 20 }}
+            verticalPadding={5}
+          />
+          <Button
+            variant="contained"
+            style={{ backgroundColor: theme.successColor, width: "100%" }}
+            onClick={() => {
+              navigate(Paths.CROSSWORD);
+            }}>
+            Play
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function HomePage() {
   const forceUpdate = useForceUpdate();
-  const navigate = useNavigate();
   const homePageTitle = "wordies";
   const flipIntervalDistribution = new ExponentialDistribution(10000.0);
   const [isFlipped] = useState([]);
@@ -75,16 +137,8 @@ export default function HomePage() {
 
   return (
     <div className="Page">
-      <HomePageTitle title={homePageTitle} isFlipped={isFlipped} style={{ padding: 20 }} />
-      <ClickableMediaCard
-        title="Crosswords"
-        description="Cross some words!"
-        image={CrosswordImage}
-        onClick={() => {
-          return navigate(Paths.CROSSWORD);
-        }}
-        style={{ width: 345, border: 2, boxShadow: 10 }}
-      />
+      <HomePageTitle title={homePageTitle} isFlipped={isFlipped} style={{ padding: 50 }} />
+      <CrosswordPortal />
     </div>
   );
 }

@@ -98,12 +98,12 @@ function TileIntersectionDialog(props) {
   );
 }
 
-function ListCard(props) {
-  const titleFontSize = 30;
+export function HintCard(props) {
+  const verticalPadding = props.verticalPadding !== undefined ? props.verticalPadding : 10;
   return (
     <Card style={props.style}>
-      <CardContent>
-        <Typography style={{ fontSize: titleFontSize }}>
+      <CardContent style={{ paddingTop: verticalPadding, paddingBottom: verticalPadding }}>
+        <Typography style={{ fontSize: props.style.titleFontSize }}>
           <b>{props.title}</b>
         </Typography>
         {Object.entries(props.hints).map(([index, hint]) => {
@@ -138,21 +138,31 @@ function ListCard(props) {
   );
 }
 
-function HintCard(props) {
+function CrosswordHintCard(props) {
   const theme = useTheme();
   const padding = 5;
   const width = "12em";
   const height = "30em";
+  const titleFontSize = 30;
   const isFlipped = Object.entries(props.hints).length !== 0;
   const front = (
-    <ListCard
-      style={{ backgroundColor: theme.primaryColor, width: width, height: height }}
+    <HintCard
+      style={{
+        backgroundColor: theme.primaryColor,
+        width: width,
+        height: height,
+        titleFontSize: titleFontSize
+      }}
       title={props.title}
       hints={{}}
     />
   );
   const back = (
-    <ListCard style={{ width: width, minHeight: height }} title={props.title} hints={props.hints} />
+    <HintCard
+      style={{ width: width, minHeight: height, titleFontSize: titleFontSize }}
+      title={props.title}
+      hints={props.hints}
+    />
   );
   return (
     <div style={{ padding: padding, width: width, marginTop: 0 }}>
@@ -492,7 +502,7 @@ export default function CrosswordPage() {
   return (
     <div className="Page">
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-        <HintCard hints={acrossHints} title={"Across"} />
+        <CrosswordHintCard hints={acrossHints} title={"Across"} />
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
@@ -516,7 +526,7 @@ export default function CrosswordPage() {
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
-        <HintCard hints={downHints} title={"Down"} />
+        <CrosswordHintCard hints={downHints} title={"Down"} />
       </div>
     </div>
   );
