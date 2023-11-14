@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Paths from "./constants/Paths";
+import { Path } from "./constants/Path";
 import { ThemeProvider, themes } from "./theme";
 import { useState } from "react";
 import HomePage from "./pages/HomePage";
@@ -14,8 +14,8 @@ export default function App() {
       <div className="App" style={{ backgroundColor: theme.backgroundColor }}>
         <Router>
           <Routes>
-            <Route path={Paths.CROSSWORD} element={<CrosswordPage />} />
-            <Route path={Paths.HOME} element={<HomePage />} />
+            <Route path={Path.Crossword} element={<CrosswordPage />} />
+            <Route path={Path.Home} element={<HomePage />} />
           </Routes>
         </Router>
       </div>

@@ -8,9 +8,9 @@ import { useForceUpdate } from "../utils/Hooks";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Button } from "@mui/material";
-import { HintCard } from "./CrosswordPage";
+import { CrosswordHintCard } from "./CrosswordPage";
 import { useNavigate } from "react-router-dom";
-import Paths from "../constants/Paths";
+import { Path } from "../constants/Path";
 
 function HomePageTitleTile(props) {
   const theme = useTheme();
@@ -84,7 +84,7 @@ function CrosswordPortal() {
           ))}
         </div>
         <div>
-          <HintCard
+          <CrosswordHintCard
             title="Across"
             hints={[
               {
@@ -93,14 +93,14 @@ function CrosswordPortal() {
                 length: 10
               }
             ]}
-            style={{ titleFontSize: 20 }}
+            style={{ titleFontSize: 20, width: "15.5em", height: "2em" }}
             verticalPadding={5}
           />
           <Button
             variant="contained"
             style={{ backgroundColor: theme.successColor, width: "100%" }}
             onClick={() => {
-              navigate(Paths.CROSSWORD);
+              navigate(Path.Crossword);
             }}>
             Play
           </Button>
@@ -113,19 +113,19 @@ function CrosswordPortal() {
 export default function HomePage() {
   const forceUpdate = useForceUpdate();
   const homePageTitle = "wordies";
-  const flipIntervalDistribution = new ExponentialDistribution(10000.0);
   const [isFlipped] = useState([]);
 
-  const flip = (index) => {
-    isFlipped[index] = !isFlipped[index];
-    forceUpdate();
-    const nextFlip = flipIntervalDistribution.sample() + 10000.0;
-    setTimeout(() => {
-      flip(index);
-    }, nextFlip);
-  };
-
   useEffect(() => {
+    const flipIntervalDistribution = new ExponentialDistribution(10000.0);
+    const flip = (index) => {
+      isFlipped[index] = !isFlipped[index];
+      forceUpdate();
+      const nextFlip = flipIntervalDistribution.sample() + 10000.0;
+      setTimeout(() => {
+        flip(index);
+      }, nextFlip);
+    };
+
     for (let index = 0; index < homePageTitle.length; index++) {
       isFlipped[index] = false;
       const firstFlip = flipIntervalDistribution.sample();
@@ -133,6 +133,7 @@ export default function HomePage() {
         flip(index);
       }, firstFlip);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
