@@ -3,25 +3,28 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "../theme";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Flippable from "../components/Flippable";
-import Api from "../constants/Api";
 import { Button, CardActionArea, Dialog, DialogTitle, Divider } from "@mui/material";
 import Keyboard from "../components/Keyboard";
 import { useForceUpdate } from "../utils/Hooks";
 import { Tile } from "../components/Tile";
-import Keys from "../constants/Keys";
-import Orientation from "../constants/Orientation";
+import { Orientation, OrientationUtils } from "../model/crossword/Orientation";
 import ConfettiExplosion from "react-confetti-explosion";
-import Paths from "../constants/Paths";
+import { Path } from "../constants/Path";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
+import { CrosswordBuilder, CrosswordGameController } from "../model/crossword/Crossword";
+import { Position } from "../model/crossword/Position";
+import { Api } from "../constants/Api";
+import { Key } from "../constants/Key";
+import { Random } from "../utils/Maths";
 
 function CrosswordCompleteDialog(props) {
   const navigate = useNavigate();
   const theme = useTheme();
   const navigateHome = () => {
-    navigate(Paths.HOME);
+    navigate(Path.Home);
   };
   const playAgain = () => {
     window.location.reload();
@@ -72,100 +75,95 @@ function TileIntersectionDialog(props) {
           backgroundColor: theme.backgroundColor
         }}>
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-          <CrosswordTile contents={{ guess: props.guess, answer: "?", index: props.index }} />
+          <CrosswordTile tile={props.tile} ignoreSelection />
           <CrosswordTile
-            contents={{
+            tile={{
+              isInPlay: true,
               guess: "→",
-              answer: "?",
-              isSelected: true,
-              onClick: () => handleSelection(Orientation.ACROSS)
+              isSelected: true
             }}
+            onTileClick={() => handleSelection(Orientation.Across)}
           />
         </div>
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
           <CrosswordTile
-            contents={{
+            tile={{
+              isInPlay: true,
               guess: "↓",
-              answer: "?",
-              isSelected: true,
-              onClick: () => handleSelection(Orientation.DOWN)
+              isSelected: true
+            }}
+            onTileClick={() => handleSelection(Orientation.Down)}
+          />
+          <CrosswordTile
+            tile={{
+              isInPlay: false
             }}
           />
-          <CrosswordTile contents={{ answer: "" }} />
         </div>
       </div>
     </Dialog>
   );
 }
 
-export function HintCard(props) {
-  const verticalPadding = props.verticalPadding !== undefined ? props.verticalPadding : 10;
-  return (
-    <Card style={props.style}>
-      <CardContent style={{ paddingTop: verticalPadding, paddingBottom: verticalPadding }}>
-        <Typography style={{ fontSize: props.style.titleFontSize }}>
-          <b>{props.title}</b>
-        </Typography>
-        {Object.entries(props.hints).map(([index, hint]) => {
-          return (
-            <div key={index}>
-              <Divider flexItem />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  padding: 1,
-                  paddingBottom: 5,
-                  textAlign: "left"
-                }}>
-                <Typography>
-                  <b>{hint.index}: </b>
-                </Typography>
-                <Typography
-                  style={{
-                    paddingLeft: 5,
-                    textDecoration: hint.hasBeenFound ? "line-through" : "none"
-                  }}>
-                  {hint.text}
-                  <b> ({hint.length}&nbsp;letters)</b>
-                </Typography>
-              </div>
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
-  );
-}
-
-function CrosswordHintCard(props) {
+export function CrosswordHintCard(props) {
   const theme = useTheme();
-  const padding = 5;
-  const width = "12em";
-  const height = "30em";
-  const titleFontSize = 30;
-  const isFlipped = Object.entries(props.hints).length !== 0;
+  const { padding, width, height, titleFontSize } = props.style;
+  const verticalPadding = props.verticalPadding !== undefined ? props.verticalPadding : 10;
+  const isFlipped = props.hints && Object.entries(props.hints).length !== 0;
+  function CrosswordHintCardInternal(props) {
+    return (
+      <Card style={props.style}>
+        <CardContent style={{ paddingTop: verticalPadding, paddingBottom: verticalPadding }}>
+          <Typography style={{ fontSize: titleFontSize }}>
+            <b>{props.title}</b>
+          </Typography>
+          {Object.entries(props.hints).map(([index, hint]) => {
+            return (
+              <div key={index}>
+                <Divider flexItem />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: 1,
+                    paddingBottom: 5,
+                    textAlign: "left"
+                  }}>
+                  <Typography>
+                    <b>{hint.index}: </b>
+                  </Typography>
+                  <Typography
+                    style={{
+                      paddingLeft: 5,
+                      textDecoration: hint.hasBeenGuessedCorrectly ? "line-through" : "none"
+                    }}>
+                    {hint.text}
+                    <b> ({hint.length}&nbsp;letters)</b>
+                  </Typography>
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    );
+  }
   const front = (
-    <HintCard
-      style={{
-        backgroundColor: theme.primaryColor,
-        width: width,
-        height: height,
-        titleFontSize: titleFontSize
-      }}
+    <CrosswordHintCardInternal
+      style={{ ...props.style, backgroundColor: theme.primaryColor, width: width, height: height }}
       title={props.title}
       hints={{}}
     />
   );
   const back = (
-    <HintCard
-      style={{ width: width, minHeight: height, titleFontSize: titleFontSize }}
+    <CrosswordHintCardInternal
+      style={{ ...props.style, width: width, minHeight: height }}
       title={props.title}
       hints={props.hints}
     />
   );
   return (
-    <div style={{ padding: padding, width: width, marginTop: 0 }}>
+    <div style={{ padding: padding, width: width, minHeight: height, marginTop: 0 }}>
       <Flippable front={front} back={back} isFlipped={isFlipped} />
     </div>
   );
@@ -203,23 +201,25 @@ function CrosswordTile(props) {
   const theme = useTheme();
   const padding = 5;
   const size = 50;
-  const isFlipped = props.contents.answer !== "" && !props.contents.isCorrect;
-  const backColor = props.contents.isSelected ? theme.accentColor : "";
-  const front = props.contents.isCorrect ? (
+  const handleTileClick = () => {
+    props.onTileClick(props.position);
+  };
+  const isFlipped = props.tile.isInPlay && !props.tile.hasBeenGuessedCorrectly;
+  const frontColor = props.tile.hasBeenGuessedCorrectly ? theme.successColor : theme.primaryColor;
+  const backColor = !props.ignoreSelection && props.tile.isSelected ? theme.accentColor : "";
+  const front = (
     <Tile
-      character={props.contents.answer}
-      index={props.contents.index}
+      character={props.tile.guess}
+      index={props.tile.index}
       size={size}
-      style={{ backgroundColor: theme.successColor }}
+      style={{ backgroundColor: frontColor }}
     />
-  ) : (
-    <Tile size={size} style={{ backgroundColor: theme.primaryColor }} />
   );
   const back = (
     <ClickableTile
-      onClick={props.contents.onClick}
-      character={props.contents.guess}
-      index={props.contents.index}
+      onClick={handleTileClick}
+      character={props.tile.guess}
+      index={props.tile.index}
       size={size}
       style={{ backgroundColor: backColor }}
     />
@@ -231,278 +231,133 @@ function CrosswordTile(props) {
   );
 }
 
-function CrosswordColumn(props) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      {Array.from({ length: props.height }).map((_, y) => {
-        return <CrosswordTile key={y} contents={props.columnContents[y]} />;
-      })}
-    </div>
-  );
-}
-
 function CrosswordGrid(props) {
   return (
     <div style={{ display: "flex", flexDirection: "row", padding: 10 }}>
-      {Array.from({ length: props.width }).map((_, x) => {
-        return (
-          <CrosswordColumn
-            key={x}
-            x={x}
-            height={props.height}
-            columnContents={props.gridContents[x]}
-          />
-        );
-      })}
+      {Array.from({ length: props.crossword.width }).map((_, x) => (
+        <div key={x} style={{ display: "flex", flexDirection: "column" }}>
+          {Array.from({ length: props.crossword.height }).map((_, y) => {
+            const position = new Position(x, y);
+            return (
+              <CrosswordTile
+                key={y}
+                position={position}
+                tile={props.crossword.getTile(position)}
+                onTileClick={props.onTileClick}
+              />
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
 
-function Translate(position, distance, orientation) {
-  if (orientation === Orientation.ACROSS) {
-    return [position.x + distance, position.y];
-  }
-  return [position.x, position.y + distance];
-}
-
-function ParseGetResponse(json, handleTileClick) {
-  const width = json.width;
-  const height = json.height;
+function ParseGetResponse(json) {
+  const crosswordBuilder = new CrosswordBuilder(json.width, json.height);
   const questions = json.questions.sort((q1, q2) => {
     const p1 = q1.position;
     const p2 = q2.position;
-    return p1.x + p1.y * width - (p2.x + p2.y * width);
+    return p1.x + p1.y * json.width - (p2.x + p2.y * json.width);
   });
-  const gridContents = Array.from({ length: width }).map(() => {
-    return Array.from({ length: height }).map(() => {
-      return { answer: "" };
-    });
-  });
-  let displayIndex = 0;
-  let answerIndex = 0;
-  const acrossHints = {};
-  const downHints = {};
-  const answers = [];
-  Array.from({ length: questions.length }).map((_, i) => {
-    const question = questions[i];
-    Array.from({ length: question.answer.length }).map((_, j) => {
-      const [x, y] = Translate(question.position, j, question.orientation);
-      const gridTile = gridContents[x][y];
-      if (!gridTile.answer) {
-        gridTile.answer = question.answer[j];
-        gridTile.isCorrect = false;
-        gridTile.isIntersection = false;
-        gridTile.isSelected = false;
-        gridTile.onClick = () => {
-          handleTileClick({ x: x, y: y, orientation: question.orientation }, gridContents);
-        };
-      } else {
-        gridTile.isIntersection = true;
-      }
-    });
-    const gridTile = gridContents[question.position.x][question.position.y];
-    if (!gridTile.index) {
-      displayIndex = displayIndex + 1;
-    }
-    gridTile.index = displayIndex;
-    const randomHintIndex = Math.floor(Math.random() * question.hints.length);
-    const hintText = question.hints[randomHintIndex];
-    const hint = {
-      index: displayIndex,
-      text: hintText,
-      length: question.answer.length,
-      hasBeenFound: false
-    };
-    if (question.orientation === Orientation.ACROSS) {
-      acrossHints[answerIndex] = hint;
-    } else {
-      downHints[answerIndex] = hint;
-    }
-    answers.push({
-      position: question.position,
-      orientation: question.orientation,
-      length: question.answer.length
-    });
-    answerIndex = answerIndex + 1;
-  });
-  return [gridContents, acrossHints, downHints, answers];
+  for (const question of questions) {
+    const position = new Position(question.position.x, question.position.y);
+    const orientation = OrientationUtils.fromString(question.orientation);
+    const hintText = question.hints[Random.randomInteger(question.hints.length)];
+    const answerText = question.answer;
+    crosswordBuilder.addHintAndAnswer(position, orientation, hintText, answerText);
+  }
+  return new CrosswordGameController(crosswordBuilder.build());
 }
 
 export default function CrosswordPage() {
+  const styles = {
+    hintCard: {
+      padding: 5,
+      width: "12em",
+      height: "30em",
+      titleFontSize: 30
+    }
+  };
   const forceUpdate = useForceUpdate();
-  const width = 15;
-  const height = 15;
-  const [gridContents, setGridContents] = useState(
-    Array.from({ length: width }).map(() => {
-      return Array.from({ length: height }).map(() => {
-        return { answer: "" };
-      });
-    })
+  const [crosswordGameController, setCrosswordGameController] = useState(
+    new CrosswordGameController(new CrosswordBuilder(/* width */ 15, /* height */ 15).build())
   );
-  const [acrossHints, setAcrossHints] = useState({});
-  const [downHints, setDownHints] = useState({});
-  const [answers, setAnswers] = useState([]);
   const [isConfettiExploding, setIsConfettiExploding] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [isGameWonDialogOpen, setIsGameWonDialogOpen] = useState(false);
   const [tileIntersectionDialogProps, setTileIntersectionDialogProps] = useState({ isOpen: false });
 
-  const checkGuesses = () => {
-    let isComplete = true;
-    for (let index = 0; index < answers.length; index++) {
-      const answer = answers[index];
-      const correctGridTiles = [];
-      for (let i = 0; i < answer.length; i++) {
-        const [x, y] = Translate(answer.position, i, answer.orientation);
-        const gridTile = gridContents[x][y];
-        if (gridTile.answer === gridTile.guess) {
-          correctGridTiles.push(gridTile);
-        } else {
-          break;
-        }
+  const handleKeyDown = (key) => {
+    if (key === Key.Enter) {
+      if (crosswordGameController.checkGuesses()) {
+        setIsConfettiExploding(true);
+        setTimeout(() => {
+          setIsGameWonDialogOpen(true);
+        }, 2500);
       }
-      if (answer.length !== correctGridTiles.length) {
-        isComplete = false;
-        continue;
-      }
-      if (acrossHints[index]) {
-        acrossHints[index].hasBeenFound = true;
-      } else {
-        downHints[index].hasBeenFound = true;
-      }
-      for (const correctGridTile of correctGridTiles) {
-        correctGridTile.isCorrect = true;
-      }
-    }
-    if (isComplete) {
-      setIsConfettiExploding(true);
-      setTimeout(() => {
-        setIsComplete(true);
-      }, 2500);
+    } else {
+      crosswordGameController.makeGuess(key.toLowerCase());
     }
     forceUpdate();
   };
 
-  const handleKeyDown = (key) => {
-    if (key === Keys.ENTER) {
-      checkGuesses();
-      return;
-    }
-    if (!selectedPosition) {
-      return;
-    }
-    {
-      const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
-      gridTile.guess = key.toLowerCase();
-    }
-    const next = (position) => {
-      const [nextX, nextY] = Translate(position, 1, position.orientation);
-      return {
-        x: nextX,
-        y: nextY,
-        orientation: position.orientation
-      };
-    };
-    let candidatePosition = null;
-    let nextPosition = next(selectedPosition);
-    while (nextPosition.x < width && nextPosition.y < height) {
-      const gridTile = gridContents[nextPosition.x][nextPosition.y];
-      if (!gridTile.answer) {
-        break;
-      }
-      if (!gridTile.isCorrect) {
-        candidatePosition = nextPosition;
-        break;
-      }
-      nextPosition = next(nextPosition);
-    }
-    setSelectedPosition(candidatePosition);
-  };
-
-  const handleTileClick = (position, gridContents) => {
-    const gridTile = gridContents[position.x][position.y];
-    if (!gridTile.isIntersection) {
-      setSelectedPosition(position);
-      return;
-    }
-    const isNextPositionViable = (orientation) => {
-      const [nextX, nextY] = Translate(position, 1, orientation);
-      if (nextX < width && nextY < height) {
-        const gridTile = gridContents[nextX][nextY];
-        return gridTile.answer && !gridTile.isCorrect;
-      }
-      return false;
-    };
-    const viableOrientations = [];
-    for (const orientation of [Orientation.ACROSS, Orientation.DOWN]) {
-      if (isNextPositionViable(orientation)) {
-        viableOrientations.push(orientation);
-      }
-    }
-
+  const handleTileClick = (position) => {
+    const viableOrientations = Object.keys(Orientation)
+      .map((key) => Orientation[key])
+      .filter((orientation) => {
+        crosswordGameController.select(position, orientation);
+        return crosswordGameController.nextSelection(orientation);
+      });
     if (viableOrientations.length > 1) {
-      const gridTile = gridContents[position.x][position.y];
-      const tileIntersectionDialogProps = {
+      const tile = crosswordGameController.crossword.getTile(position);
+      setTileIntersectionDialogProps({
         position: position,
-        guess: gridTile.guess,
-        index: gridTile.index,
+        tile: tile,
         isOpen: true
-      };
-      setTileIntersectionDialogProps(tileIntersectionDialogProps);
+      });
     } else {
-      position.orientation = viableOrientations[0];
-      setSelectedPosition(position);
+      crosswordGameController.select(position, viableOrientations[0]);
     }
+    forceUpdate();
   };
 
   const handleTileIntersectionDialogClose = (orientation) => {
     let position = tileIntersectionDialogProps.position;
-    position.orientation = orientation
-      ? orientation
-      : Math.random() < 0.5
-      ? Orientation.ACROSS
-      : Orientation.DOWN;
-    setSelectedPosition(position);
-    setTileIntersectionDialogProps({ isOpen: false });
+    orientation = orientation ? orientation : OrientationUtils.random();
+    crosswordGameController.select(position, orientation);
+    tileIntersectionDialogProps.isOpen = false;
+    setTileIntersectionDialogProps({ isOpen: false, tile: tileIntersectionDialogProps.tile });
   };
 
   useEffect(() => {
-    fetch(Api.CROSSWORD)
+    fetch(Api.Crossword)
       .then((response) => {
         return response.json();
       })
       .then((json) => {
-        const [newGridContents, newAcrossHints, newDownHints, answers] = ParseGetResponse(
-          json,
-          handleTileClick
-        );
-        setGridContents(newGridContents);
-        setAcrossHints(newAcrossHints);
-        setDownHints(newDownHints);
-        setAnswers(answers);
+        return ParseGetResponse(json);
+      })
+      .then((crosswordGameController) => {
+        setCrosswordGameController(crosswordGameController);
       })
       .catch((error) => {
         return console.error(error);
       });
   }, []);
 
-  useMemo(() => {
-    if (selectedPosition) {
-      const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
-      gridTile.isSelected = true;
-    }
-  }, [selectedPosition]);
-  useEffect(() => {
-    if (selectedPosition) {
-      const gridTile = gridContents[selectedPosition.x][selectedPosition.y];
-      gridTile.isSelected = false;
-    }
-  }, [selectedPosition]);
-
   return (
     <div className="Page">
-      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-        <CrosswordHintCard hints={acrossHints} title={"Across"} />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center"
+        }}>
+        <CrosswordHintCard
+          hints={crosswordGameController.getHints(Orientation.Across)}
+          title={"Across"}
+          style={styles.hintCard}
+        />
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
@@ -513,20 +368,26 @@ export default function CrosswordPage() {
             alignItems: "center",
             justifyContent: "center"
           }}>
-          <CrosswordGrid width={width} height={height} gridContents={gridContents} />
+          <CrosswordGrid
+            crossword={crosswordGameController.crossword}
+            onTileClick={handleTileClick}
+          />
           <Keyboard onKeyDown={handleKeyDown} />
           <TileIntersectionDialog
             isOpen={tileIntersectionDialogProps.isOpen}
             onClose={handleTileIntersectionDialogClose}
-            guess={tileIntersectionDialogProps.guess}
-            index={tileIntersectionDialogProps.index}
+            tile={tileIntersectionDialogProps.tile}
           />
-          <CrosswordCompleteDialog isOpen={isComplete} />
+          <CrosswordCompleteDialog isOpen={isGameWonDialogOpen} />
         </div>
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
-        <CrosswordHintCard hints={downHints} title={"Down"} />
+        <CrosswordHintCard
+          hints={crosswordGameController.getHints(Orientation.Down)}
+          title={"Down"}
+          style={styles.hintCard}
+        />
       </div>
     </div>
   );

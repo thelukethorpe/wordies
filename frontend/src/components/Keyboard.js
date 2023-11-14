@@ -4,23 +4,23 @@ import { CardActionArea } from "@mui/material";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "../theme";
-import Keys from "../constants/Keys";
+import { Key } from "../constants/Key";
 
 const CHECK_TEXT = "CHECK GUESSES";
 
 function TextToKey(text) {
   if (text === CHECK_TEXT) {
-    return Keys.ENTER;
+    return Key.Enter;
   }
   return text;
 }
 
-function Key(props) {
+function KeyButton(props) {
   const theme = useTheme();
   const padding = 5;
   const size = 50;
   const style =
-    props.keyValue === Keys.ENTER
+    props.keyValue === Key.Enter
       ? {
           backgroundColor: theme.successColor,
           fontSize: 20,
@@ -73,7 +73,7 @@ export default function Keyboard(props) {
               return (
                 <div key={key} style={{ padding: padding }}>
                   {" "}
-                  <Key
+                  <KeyButton
                     keyValue={key}
                     text={text}
                     onClick={() => {

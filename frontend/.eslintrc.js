@@ -7,14 +7,17 @@ module.exports = {
         "jest/globals": true
     },
     "extends": [
+        "react-app",
         "eslint:recommended",
         "plugin:react/recommended",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
@@ -24,10 +27,14 @@ module.exports = {
     },
     "plugins": [
         "react",
-        "jest"
+        "jest",
+        "@typescript-eslint"
     ],
     "rules": {
-        "react/prop-types": 0
+        "react/prop-types": 0,
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": ["error"],
+        "@typescript-eslint/no-namespace": "off"
     },
     "settings": {
         "react": {
