@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "../theme";
-import { useEffect, useState } from "react";
 import Flippable from "../components/Flippable";
 import { Button, CardActionArea, Dialog, DialogTitle, Divider } from "@mui/material";
 import Keyboard from "../components/Keyboard";
@@ -303,6 +302,7 @@ export default function CrosswordPage() {
 
   const handleTileClick = (position) => {
     const viableOrientations = Object.keys(Orientation)
+      .filter((key) => isNaN(Number(key)))
       .map((key) => Orientation[key])
       .filter((orientation) => {
         crosswordGameController.select(position, orientation);
