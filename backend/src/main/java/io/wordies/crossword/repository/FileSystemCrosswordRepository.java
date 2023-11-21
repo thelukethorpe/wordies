@@ -4,7 +4,7 @@ import static org.apache.logging.log4j.Level.ERROR;
 import static org.apache.logging.log4j.Level.INFO;
 
 import io.wordies.config.PropertiesConfig;
-import io.wordies.util.SetUtils;
+import io.wordies.util.CollectionUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +51,7 @@ public class FileSystemCrosswordRepository extends InMemoryCrosswordRepository {
                 Collectors.toMap(
                     Map.Entry::getKey,
                     Map.Entry::getValue,
-                    (a, b) -> SetUtils.union(a, b).stream().toList()));
+                    (a, b) -> CollectionUtils.union(a, b).stream().toList()));
       } catch (IOException e) {
         LOGGER.log(ERROR, "IO error: {}", e.getMessage());
       }

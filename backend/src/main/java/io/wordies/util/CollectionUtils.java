@@ -2,7 +2,7 @@ package io.wordies.util;
 
 import java.util.*;
 
-public class SetUtils {
+public class CollectionUtils {
 
   @SafeVarargs
   public static <T> Set<T> intersection(Collection<T> collection, Collection<T>... collections) {
