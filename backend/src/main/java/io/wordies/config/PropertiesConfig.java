@@ -8,6 +8,9 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class PropertiesConfig {
 
+  @Value("${crossword.backlog.size}")
+  private Integer crosswordBacklogSize;
+
   @Value("${crossword.parameters.width}")
   private Integer crosswordParametersWidth;
 
@@ -26,14 +29,11 @@ public class PropertiesConfig {
   @Value("${crossword.repository.path}")
   private String crosswordRepositoryPath;
 
-  @Value("${crossword.quality.assurance.sample.size.min}")
-  private Integer crosswordQualityAssuranceSampleSizeMin;
+  @Value("${crossword.quality.assurance.acceptable.percentile}")
+  private Double crosswordQualityAssuranceAcceptablePercentile;
 
-  @Value("${crossword.quality.assurance.sample.size.max}")
-  private Integer crosswordQualityAssuranceSampleSizeMax;
-
-  @Value("${crossword.quality.assurance.threshold}")
-  private Double crosswordQualityAssuranceThreshold;
+  @Value("${crossword.quality.assurance.sample.size}")
+  private Integer crosswordQualityAssuranceSampleSize;
 
   @Value("${crossword.workers}")
   private Integer crosswordWorkers;
@@ -43,6 +43,10 @@ public class PropertiesConfig {
 
   @Value("${frontend.url}")
   private String frontendUrl;
+
+  public Integer getCrosswordBacklogSize() {
+    return crosswordBacklogSize;
+  }
 
   public Integer getCrosswordParametersWidth() {
     return crosswordParametersWidth;
@@ -68,16 +72,12 @@ public class PropertiesConfig {
     return crosswordRepositoryPath;
   }
 
-  public Integer getCrosswordQualityAssuranceSampleSizeMin() {
-    return crosswordQualityAssuranceSampleSizeMin;
+  public Double getCrosswordQualityAssuranceAcceptablePercentile() {
+    return crosswordQualityAssuranceAcceptablePercentile;
   }
 
-  public Integer getCrosswordQualityAssuranceSampleSizeMax() {
-    return crosswordQualityAssuranceSampleSizeMax;
-  }
-
-  public Double getCrosswordQualityAssuranceThreshold() {
-    return crosswordQualityAssuranceThreshold;
+  public Integer getCrosswordQualityAssuranceSampleSize() {
+    return crosswordQualityAssuranceSampleSize;
   }
 
   public Integer getCrosswordWorkers() {
