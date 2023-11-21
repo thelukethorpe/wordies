@@ -9,9 +9,11 @@ import io.wordies.crossword.model.Position;
 import io.wordies.crossword.model.Question;
 import io.wordies.crossword.model.crossword.*;
 import io.wordies.crossword.repository.CrosswordRepository;
+import io.wordies.util.CollectionUtils;
 import io.wordies.util.ErrorUtils;
-import io.wordies.util.structure.BlockingConcurrentPercentileSampler;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,48 +23,33 @@ import org.springframework.stereotype.Service;
 public class CrosswordService {
   private static final Logger LOGGER = LogManager.getLogger(CrosswordService.class);
   private final Random random = new Random();
-  private final CrosswordRepository crosswordRepository;
   private final CrosswordFactory crosswordFactory;
 
-  private final double qualityAssuranceThreshold;
-  private final BlockingConcurrentPercentileSampler<Crossword> crosswordPercentileSampler;
-  private final ExecutorComponent executorComponent;
+  private final BlockingQueue<Crossword> crosswordBacklog;
 
   @Autowired
   public CrosswordService(
       CrosswordRepository crosswordRepository,
       PropertiesConfig propertiesConfig,
       ExecutorComponent executorComponent) {
-    this.crosswordRepository = crosswordRepository;
     this.crosswordFactory = new CrosswordFactory(crosswordRepository, crosswordRepository);
     this.crosswordFactory.setWidth(propertiesConfig.getCrosswordParametersWidth());
     this.crosswordFactory.setHeight(propertiesConfig.getCrosswordParametersHeight());
     this.crosswordFactory.setMinWordLength(propertiesConfig.getCrosswordParametersWordLengthMin());
     this.crosswordFactory.setMaxWordLength(propertiesConfig.getCrosswordParametersWordLengthMax());
     this.crosswordFactory.setMaxOffset(propertiesConfig.getCrosswordParametersOffsetMax());
-    this.qualityAssuranceThreshold = propertiesConfig.getCrosswordQualityAssuranceThreshold();
-    this.crosswordPercentileSampler =
-        new BlockingConcurrentPercentileSampler<>(
-            propertiesConfig.getCrosswordQualityAssuranceSampleSizeMin(),
-            propertiesConfig.getCrosswordQualityAssuranceSampleSizeMax());
-    this.executorComponent = executorComponent;
+    this.crosswordBacklog = new LinkedBlockingQueue<>(propertiesConfig.getCrosswordBacklogSize());
     for (int i = 0; i < propertiesConfig.getCrosswordWorkers(); i++) {
       executorComponent.runOnLoop(
-          () -> {
-            Crossword crossword = crosswordFactory.getRandomCrossword(random);
-            try {
-              crosswordPercentileSampler.offer(
-                  crossword, getCrosswordQualityCoefficient(crossword));
-            } catch (InterruptedException e) {
-              LOGGER.log(ERROR, ErrorUtils.toErrorMessage(e));
-            }
-          });
+          new Worker(
+              propertiesConfig.getCrosswordQualityAssuranceSampleSize(),
+              propertiesConfig.getCrosswordQualityAssuranceAcceptablePercentile()));
     }
   }
 
   public Crossword getRandomCrossword() {
     try {
-      return crosswordPercentileSampler.poll(qualityAssuranceThreshold);
+      return crosswordBacklog.take();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -128,5 +115,53 @@ public class CrosswordService {
       }
     }
     return 1.0 / (double) groupIndexToPositionsMap.size();
+  }
+
+  private class ComparableCrossword implements Comparable<ComparableCrossword> {
+
+    private final Crossword crossword;
+    private final double qualityCoefficient;
+
+    private ComparableCrossword(Crossword crossword) {
+      this.crossword = crossword;
+      this.qualityCoefficient = getCrosswordQualityCoefficient(crossword);
+    }
+
+    public Crossword getCrossword() {
+      return crossword;
+    }
+
+    @Override
+    public int compareTo(ComparableCrossword that) {
+      return Double.compare(that.qualityCoefficient, this.qualityCoefficient);
+    }
+  }
+
+  private class Worker implements Runnable {
+    private final int sampleSize;
+    private final int acceptableThreshold;
+
+    private Worker(int sampleSize, double acceptablePercentile) {
+      this.sampleSize = sampleSize;
+      this.acceptableThreshold = (int) (sampleSize * acceptablePercentile);
+    }
+
+    @Override
+    public void run() {
+      List<ComparableCrossword> comparableCrosswords = new ArrayList<>(sampleSize);
+      for (int i = 0; i < sampleSize; i++) {
+        Crossword crossword = crosswordFactory.getRandomCrossword(random);
+        comparableCrosswords.add(new ComparableCrossword(crossword));
+      }
+      comparableCrosswords = CollectionUtils.sortN(comparableCrosswords, acceptableThreshold);
+      Collections.shuffle(comparableCrosswords, random);
+      for (ComparableCrossword comparableCrossword : comparableCrosswords) {
+        try {
+          crosswordBacklog.put(comparableCrossword.getCrossword());
+        } catch (InterruptedException e) {
+          LOGGER.log(ERROR, ErrorUtils.toErrorMessage(e));
+        }
+      }
+    }
   }
 }

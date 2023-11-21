@@ -1,6 +1,6 @@
 package io.wordies.crossword.repository;
 
-import io.wordies.util.SetUtils;
+import io.wordies.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,7 @@ public class InMemoryCrosswordRepository implements CrosswordRepository {
     return queries.stream()
         .map(characterIndexPairToWordsMap::get)
         .filter(Objects::nonNull)
-        .reduce(wordToHintsMap.keySet(), SetUtils::intersection)
+        .reduce(wordToHintsMap.keySet(), CollectionUtils::intersection)
         .stream()
         .filter(word -> minWordLength <= word.length() && word.length() <= maxWordLength)
         .collect(Collectors.toList());
