@@ -1,0 +1,44 @@
+.Tile {
+    width: 1.2em;
+    height: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.Tile-content {
+    width: 100%;
+    height: 100%;
+    padding: 0 !important;
+    &:last-child {
+        padding-bottom: 0 !important;
+    }
+}
+
+.Tile-clickable-body {
+    width: 95%;
+    height: 95%;
+    font-size: 1em;
+}
+
+.Tile-index {
+    top: 0;
+    left: 0.32em;
+    position: absolute;
+    font-size: 0.32em !important;
+}
+
+.Tile-character {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 0.8em !important;
+}
+
+.Tile-character.True-center {
+    height: 91%;
+}

@@ -15,37 +15,52 @@ export default function CrosswordTileIntersectionDialog(props) {
     props.onClose(orientation);
   };
 
+  function CrosswordTileInternal(props) {
+    return (
+      <div style={{ fontSize: "10vmin" }}>
+        <CrosswordTile
+          tile={props.tile}
+          onTileClick={props.onTileClick}
+          ignoreSelection={props.ignoreSelection}
+          trueCenter={props.trueCenter}
+        />
+      </div>
+    );
+  }
+
   return (
     <Dialog onClose={handleClose} open={props.isOpen}>
       <DialogTitle sx={{ fontWeight: "bold" }}>Which direction?</DialogTitle>
       <div
         className="Align Column"
         style={{
-          padding: 25,
+          padding: `${2}em`,
           backgroundColor: theme.backgroundColor,
           alignItems: "center"
         }}>
         <div className="Align Row">
-          <CrosswordTile tile={props.tile} ignoreSelection />
-          <CrosswordTile
+          <CrosswordTileInternal tile={props.tile} ignoreSelection />
+          <CrosswordTileInternal
             tile={{
               isInPlay: true,
               guess: "→",
               isSelected: true
             }}
+            trueCenter
             onTileClick={() => handleSelection(Orientation.Across)}
           />
         </div>
         <div className="Align Row">
-          <CrosswordTile
+          <CrosswordTileInternal
             tile={{
               isInPlay: true,
               guess: "↓",
               isSelected: true
             }}
+            trueCenter
             onTileClick={() => handleSelection(Orientation.Down)}
           />
-          <CrosswordTile
+          <CrosswordTileInternal
             tile={{
               isInPlay: false
             }}

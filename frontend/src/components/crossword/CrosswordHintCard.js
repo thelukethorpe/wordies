@@ -8,7 +8,8 @@ import Flippable from "../common/Flippable";
 
 export default function CrosswordHintCard(props) {
   const theme = useTheme();
-  const { titleFontSize } = props.style;
+  const titleFontSize = `${1}em`;
+  const hintFontSize = `${0.75}em`;
   const internalStyle = {
     width: "100%",
     height: "100%"
@@ -35,11 +36,12 @@ export default function CrosswordHintCard(props) {
                     paddingBottom: 5,
                     textAlign: "left"
                   }}>
-                  <Typography>
+                  <Typography style={{ fontSize: hintFontSize }}>
                     <b>{hint.index}: </b>
                   </Typography>
                   <Typography
                     style={{
+                      fontSize: hintFontSize,
                       paddingLeft: 5,
                       textDecoration: hint.hasBeenGuessedCorrectly ? "line-through" : "none"
                     }}>

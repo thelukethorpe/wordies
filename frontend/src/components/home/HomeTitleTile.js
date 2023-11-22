@@ -5,25 +5,23 @@ import Flippable from "../common/Flippable";
 
 export default function HomeTitleTile(props) {
   const theme = useTheme();
-  const padding = 5;
-  const size = 100;
+  const padding = `${0.1}em`;
   const front = (
     <Tile
       character={props.character}
-      size={size}
       style={{
         backgroundColor: theme.accentColor
       }}
       raised={true}
     />
   );
-  const back = <Tile character={props.character} index={props.index} size={size} raised={true} />;
+  const back = <Tile character={props.character} index={props.index} raised={true} />;
   return (
     <Flippable
       front={front}
       back={back}
       isFlipped={props.isFlipped}
-      style={{ padding: padding, marginTop: 0 }}
+      style={{ padding: padding, marginTop: 0, fontSize: "8vmin" }}
     />
   );
 }

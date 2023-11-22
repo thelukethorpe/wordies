@@ -5,8 +5,10 @@ import Flippable from "../common/Flippable";
 
 export default function CrosswordTile(props) {
   const theme = useTheme();
-  const padding = 5;
-  const size = 50;
+  const style = {
+    marginTop: 0,
+    padding: `${0.1}em`
+  };
   const handleTileClick = () => {
     props.onTileClick(props.position);
   };
@@ -17,7 +19,6 @@ export default function CrosswordTile(props) {
     <Tile
       character={props.tile.guess}
       index={props.tile.index}
-      size={size}
       style={{ backgroundColor: frontColor }}
     />
   );
@@ -26,16 +27,9 @@ export default function CrosswordTile(props) {
       onClick={handleTileClick}
       character={props.tile.guess}
       index={props.tile.index}
-      size={size}
+      trueCenter={props.trueCenter}
       style={{ backgroundColor: backColor }}
     />
   );
-  return (
-    <Flippable
-      front={front}
-      back={back}
-      isFlipped={isFlipped}
-      style={{ padding: padding, marginTop: 0 }}
-    />
-  );
+  return <Flippable front={front} back={back} isFlipped={isFlipped} style={style} />;
 }
