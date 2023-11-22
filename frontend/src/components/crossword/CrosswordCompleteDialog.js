@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import { Path } from "../../constants/Path";
 import { Button, Dialog, DialogTitle } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";

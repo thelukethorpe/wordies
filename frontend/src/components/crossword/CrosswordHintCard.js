@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";

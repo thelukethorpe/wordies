@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import { Dialog, DialogTitle } from "@mui/material";
 import { Orientation } from "../../model/crossword/Orientation";
 import CrosswordTile from "./CrosswordTile";

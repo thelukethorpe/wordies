@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Tile } from "../common/Tile";

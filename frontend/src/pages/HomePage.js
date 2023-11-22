@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./Page.css";
+import "../style/common/Page.css";
 import { ExponentialDistribution } from "../utils/Maths";
 import { useForceUpdate } from "../utils/Hooks";
 import HomeTitle from "../components/home/HomeTitle";

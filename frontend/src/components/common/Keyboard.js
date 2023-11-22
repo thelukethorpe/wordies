@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import { CardActionArea } from "@mui/material";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import { Key } from "../../constants/Key";
 
 const CHECK_TEXT = "CHECK GUESSES";
