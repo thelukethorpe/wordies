@@ -44,7 +44,7 @@ export default function HomeCrosswordPortal() {
                 length: 10
               }
             ]}
-            style={{ titleFontSize: 20, width: "15.5em", height: "2em" }}
+            style={{ titleFontSize: 20 }}
             verticalPadding={5}
           />
           <Button

@@ -19,8 +19,11 @@ export default function HomeTitleTile(props) {
   );
   const back = <Tile character={props.character} index={props.index} size={size} raised={true} />;
   return (
-    <div style={{ padding: padding, width: size, height: size, marginTop: 0 }}>
-      <Flippable front={front} back={back} isFlipped={props.isFlipped} />
-    </div>
+    <Flippable
+      front={front}
+      back={back}
+      isFlipped={props.isFlipped}
+      style={{ padding: padding, marginTop: 0 }}
+    />
   );
 }

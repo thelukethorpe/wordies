@@ -8,7 +8,11 @@ import Flippable from "../common/Flippable";
 
 export default function CrosswordHintCard(props) {
   const theme = useTheme();
-  const { padding, width, height, titleFontSize } = props.style;
+  const { titleFontSize } = props.style;
+  const internalStyle = {
+    width: "100%",
+    height: "100%"
+  };
   const verticalPadding = props.verticalPadding !== undefined ? props.verticalPadding : 10;
   const isFlipped = props.hints && Object.entries(props.hints).length !== 0;
   function CrosswordHintCardInternal(props) {
@@ -51,21 +55,13 @@ export default function CrosswordHintCard(props) {
   }
   const front = (
     <CrosswordHintCardInternal
-      style={{ ...props.style, backgroundColor: theme.primaryColor, width: width, height: height }}
+      style={{ ...internalStyle, backgroundColor: theme.primaryColor }}
       title={props.title}
       hints={{}}
     />
   );
   const back = (
-    <CrosswordHintCardInternal
-      style={{ ...props.style, width: width, minHeight: height }}
-      title={props.title}
-      hints={props.hints}
-    />
+    <CrosswordHintCardInternal style={internalStyle} title={props.title} hints={props.hints} />
   );
-  return (
-    <div style={{ padding: padding, width: width, minHeight: height, marginTop: 0 }}>
-      <Flippable front={front} back={back} isFlipped={isFlipped} />
-    </div>
-  );
+  return <Flippable front={front} back={back} isFlipped={isFlipped} style={props.style} />;
 }

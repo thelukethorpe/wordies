@@ -32,8 +32,11 @@ export default function CrosswordTile(props) {
     />
   );
   return (
-    <div style={{ padding: padding, width: size, height: size, marginTop: 0 }}>
-      <Flippable front={front} back={back} isFlipped={isFlipped} />
-    </div>
+    <Flippable
+      front={front}
+      back={back}
+      isFlipped={isFlipped}
+      style={{ padding: padding, marginTop: 0 }}
+    />
   );
 }
