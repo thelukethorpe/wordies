@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./Page.css";
 import { useTheme } from "../theme";
-import { Tile } from "../components/Tile";
-import Flippable from "../components/Flippable";
+import { Tile } from "../components/common/Tile";
+import Flippable from "../components/common/Flippable";
 import { ExponentialDistribution } from "../utils/Maths";
 import { useForceUpdate } from "../utils/Hooks";
 import Card from "@mui/material/Card";
