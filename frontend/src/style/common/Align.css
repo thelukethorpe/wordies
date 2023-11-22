@@ -1,0 +1,13 @@
+.Align {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Align.Column {
+    flex-direction: column;
+}
+
+.Align.Row {
+    flex-direction: row;
+}

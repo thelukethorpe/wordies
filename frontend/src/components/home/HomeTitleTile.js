@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import { Tile } from "../common/Tile";
 import Flippable from "../common/Flippable";
 

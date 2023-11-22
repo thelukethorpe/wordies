@@ -1,5 +1,5 @@
 import React from "react";
-import "./Flippable.css";
+import "../../style/common/Flippable.css";
 
 export default function Flippable(props) {
   return (

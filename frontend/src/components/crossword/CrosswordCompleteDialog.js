@@ -1,9 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../../theme";
+import { useTheme } from "../../style/theme";
 import { Path } from "../../constants/Path";
 import { Button, Dialog, DialogTitle } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
+import "../../style/common/Align.css";
 
 export default function CrosswordCompleteDialog(props) {
   const navigate = useNavigate();
@@ -19,11 +20,8 @@ export default function CrosswordCompleteDialog(props) {
     <Dialog onClose={playAgain} open={props.isOpen}>
       <DialogTitle sx={{ fontWeight: "bold" }}>🎉 Congratulations! 🎉</DialogTitle>
       <div
+        className="Align Column"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
           padding: 20,
           backgroundColor: theme.backgroundColor
         }}>
