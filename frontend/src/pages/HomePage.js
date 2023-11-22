@@ -8,9 +8,9 @@ import { useForceUpdate } from "../utils/Hooks";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Button } from "@mui/material";
-import { CrosswordHintCard } from "./CrosswordPage";
 import { useNavigate } from "react-router-dom";
 import { Path } from "../constants/Path";
+import CrosswordHintCard from "../components/crossword/CrosswordHintCard";
 
 function HomePageTitleTile(props) {
   const theme = useTheme();
