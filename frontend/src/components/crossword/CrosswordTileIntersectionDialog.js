@@ -3,6 +3,7 @@ import { useTheme } from "../../style/theme";
 import { Dialog, DialogTitle } from "@mui/material";
 import { Orientation } from "../../model/crossword/Orientation";
 import CrosswordTile from "./CrosswordTile";
+import "../../style/common/Align.css";
 
 export default function CrosswordTileIntersectionDialog(props) {
   const theme = useTheme();
@@ -18,14 +19,12 @@ export default function CrosswordTileIntersectionDialog(props) {
     <Dialog onClose={handleClose} open={props.isOpen}>
       <DialogTitle sx={{ fontWeight: "bold" }}>Which direction?</DialogTitle>
       <div
+        className="Align Column"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
           padding: 25,
           backgroundColor: theme.backgroundColor
         }}>
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+        <div className="Align Row">
           <CrosswordTile tile={props.tile} ignoreSelection />
           <CrosswordTile
             tile={{
@@ -36,7 +35,7 @@ export default function CrosswordTileIntersectionDialog(props) {
             onTileClick={() => handleSelection(Orientation.Across)}
           />
         </div>
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+        <div className="Align Row">
           <CrosswordTile
             tile={{
               isInPlay: true,

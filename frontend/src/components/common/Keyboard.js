@@ -5,6 +5,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "../../style/theme";
 import { Key } from "../../constants/Key";
+import "../../style/common/Align.css";
 
 const CHECK_TEXT = "CHECK GUESSES";
 
@@ -64,10 +65,10 @@ export default function Keyboard(props) {
     ["Z", "X", "C", "V", "B", "N", "M", CHECK_TEXT]
   ];
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div className="Align Column">
       {Array.from(keys).map((keyRow, y) => {
         return (
-          <div key={y} style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+          <div key={y} className="Align Row">
             {Array.from(keyRow).map((text) => {
               const key = TextToKey(text);
               return (

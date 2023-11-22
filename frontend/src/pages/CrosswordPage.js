@@ -12,6 +12,8 @@ import CrosswordCompleteDialog from "../components/crossword/CrosswordCompleteDi
 import CrosswordTileIntersectionDialog from "../components/crossword/CrosswordTileIntersectionDialog";
 import CrosswordHintCard from "../components/crossword/CrosswordHintCard";
 import CrosswordGrid from "../components/crossword/CrosswordGrid";
+import "../style/common/Align.css";
+import "../style/common/Page.css";
 
 function ParseGetResponse(json) {
   const crosswordBuilder = new CrosswordBuilder(json.width, json.height);
@@ -108,12 +110,7 @@ export default function CrosswordPage() {
 
   return (
     <div className="Page">
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center"
-        }}>
+      <div className="Align Row">
         <CrosswordHintCard
           hints={crosswordGameController.getHints(Orientation.Across)}
           title={"Across"}
@@ -122,13 +119,7 @@ export default function CrosswordPage() {
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
+        <div className="Align Column">
           <CrosswordGrid
             crossword={crosswordGameController.crossword}
             onTileClick={handleTileClick}

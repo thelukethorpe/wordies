@@ -7,6 +7,7 @@ import { Tile } from "../common/Tile";
 import CrosswordHintCard from "../crossword/CrosswordHintCard";
 import { Button } from "@mui/material";
 import { Path } from "../../constants/Path";
+import "../../style/common/Align.css";
 
 export default function HomeCrosswordPortal() {
   const navigate = useNavigate();
@@ -17,18 +18,10 @@ export default function HomeCrosswordPortal() {
   const tileSize = 50;
   return (
     <Card style={{ backgroundColor: theme.accentColor, padding: 5 }} raised={true}>
-      <CardContent
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
+      <CardContent className="Align Column">
         <div
+          className="Align Row"
           style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
             paddingBottom: 15
           }}>
           {Array.from({ length: portalTitle.length }).map((_, index) => (

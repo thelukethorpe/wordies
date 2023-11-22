@@ -1,10 +1,10 @@
 import React from "react";
 import HomeTitleTile from "./HomeTitleTile";
+import "../../style/common/Align.css";
 
 export default function HomeTitle(props) {
   return (
-    <div
-      style={{ ...props.style, display: "flex", flexDirection: "row", justifyContent: "center" }}>
+    <div className="Align Row" style={props.style}>
       {Array.from({ length: props.title.length }).map((_, index) => (
         <HomeTitleTile
           key={index}
