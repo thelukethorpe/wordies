@@ -2,7 +2,6 @@ import React from "react";
 import { useTheme } from "../../style/theme";
 import { Tile } from "../common/Tile";
 import Flippable from "../common/Flippable";
-import ClickableTile from "../common/ClickableTile";
 
 export default function CrosswordTile(props) {
   const theme = useTheme();
@@ -23,7 +22,7 @@ export default function CrosswordTile(props) {
     />
   );
   const back = (
-    <ClickableTile
+    <Tile
       onClick={handleTileClick}
       character={props.tile.guess}
       index={props.tile.index}
