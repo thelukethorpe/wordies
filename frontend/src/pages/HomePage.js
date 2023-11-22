@@ -1,39 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "../style/common/Page.css";
-import { ExponentialDistribution } from "../utils/Maths";
-import { useForceUpdate } from "../utils/Hooks";
-import HomeTitle from "../components/home/HomeTitle";
 import HomeCrosswordPortal from "../components/home/HomeCrosswordPortal";
+import AutoFlippingHomeTitle from "../components/home/HomeAutoFlippingTitle";
 
 export default function HomePage() {
-  const forceUpdate = useForceUpdate();
   const homePageTitle = "wordies";
-  const [isFlipped] = useState([]);
-
-  useEffect(() => {
-    const flipIntervalDistribution = new ExponentialDistribution(10000.0);
-    const flip = (index) => {
-      isFlipped[index] = !isFlipped[index];
-      forceUpdate();
-      const nextFlip = flipIntervalDistribution.sample() + 10000.0;
-      setTimeout(() => {
-        flip(index);
-      }, nextFlip);
-    };
-
-    for (let index = 0; index < homePageTitle.length; index++) {
-      isFlipped[index] = false;
-      const firstFlip = flipIntervalDistribution.sample();
-      setTimeout(() => {
-        flip(index);
-      }, firstFlip);
+  const styles = {
+    homeTitle: {
+      padding: 50
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
     <div className="Page">
-      <HomeTitle title={homePageTitle} isFlipped={isFlipped} style={{ padding: 50 }} />
+      <AutoFlippingHomeTitle title={homePageTitle} style={styles.homeTitle} />
       <HomeCrosswordPortal />
     </div>
   );
