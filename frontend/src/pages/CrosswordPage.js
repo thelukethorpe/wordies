@@ -37,7 +37,7 @@ export default function CrosswordPage() {
     hintCard: {
       padding: 5,
       width: "12em",
-      height: "30em",
+      height: "100%",
       titleFontSize: 30
     }
   };
@@ -111,11 +111,13 @@ export default function CrosswordPage() {
   return (
     <div className="Page">
       <div className="Align Row">
-        <CrosswordHintCard
-          hints={crosswordGameController.getHints(Orientation.Across)}
-          title={"Across"}
-          style={styles.hintCard}
-        />
+        <div>
+          <CrosswordHintCard
+            hints={crosswordGameController.getHints(Orientation.Across)}
+            title={"Across"}
+            style={styles.hintCard}
+          />
+        </div>
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
@@ -135,11 +137,13 @@ export default function CrosswordPage() {
         {isConfettiExploding && (
           <ConfettiExplosion duration={10000} particleSize={15} width={1600} />
         )}
-        <CrosswordHintCard
-          hints={crosswordGameController.getHints(Orientation.Down)}
-          title={"Down"}
-          style={styles.hintCard}
-        />
+        <div>
+          <CrosswordHintCard
+            hints={crosswordGameController.getHints(Orientation.Down)}
+            title={"Down"}
+            style={styles.hintCard}
+          />
+        </div>
       </div>
     </div>
   );

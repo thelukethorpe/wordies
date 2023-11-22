@@ -5,7 +5,7 @@ import "../../style/common/Align.css";
 
 export default function CrosswordGrid(props) {
   return (
-    <div className="Align Row" style={{ padding: 10, marginTop: 15 }}>
+    <div className="Align Row" style={{ padding: 10 }}>
       {Array.from({ length: props.crossword.width }).map((_, x) => (
         <div key={x} className="Align Column">
           {Array.from({ length: props.crossword.height }).map((_, y) => {

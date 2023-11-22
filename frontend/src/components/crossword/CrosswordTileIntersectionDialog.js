@@ -22,7 +22,8 @@ export default function CrosswordTileIntersectionDialog(props) {
         className="Align Column"
         style={{
           padding: 25,
-          backgroundColor: theme.backgroundColor
+          backgroundColor: theme.backgroundColor,
+          alignItems: "center"
         }}>
         <div className="Align Row">
           <CrosswordTile tile={props.tile} ignoreSelection />

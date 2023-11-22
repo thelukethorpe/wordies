@@ -31,6 +31,7 @@ export default function CrosswordHintCard(props) {
                     display: "flex",
                     flexDirection: "row",
                     padding: 1,
+                    paddingTop: 5,
                     paddingBottom: 5,
                     textAlign: "left"
                   }}>
