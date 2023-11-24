@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import { useTheme } from "../../style/theme";
 import { Key } from "../../constants/Key";
 import "../../style/common/Align.css";
+import "../../style/common/Keyboard.css";
 
 const CHECK_TEXT = "CHECK GUESSES";
 
@@ -16,39 +17,33 @@ function TextToKey(text) {
   return text;
 }
 
-function KeyButton(props) {
+function GetStyles(keyValue) {
   const theme = useTheme();
-  const padding = 5;
-  const size = 50;
-  const style =
-    props.keyValue === Key.Enter
-      ? {
-          backgroundColor: theme.successColor,
-          fontSize: 20,
-          color: "common.white",
-          height: size
-        }
-      : {
-          fontSize: 30,
-          width: size,
-          height: size
-        };
+  let styles = {
+    textClassName: "Key-button-text",
+    style: {},
+    fontStyle: {}
+  };
+  if (keyValue === Key.Enter) {
+    styles.textClassName = "Key-button-text Small";
+    styles.style = {
+      backgroundColor: theme.successColor
+    };
+    styles.fontStyle = {
+      color: "common.white",
+      fontSize: "0.5em"
+    };
+  }
+  return styles;
+}
+
+function KeyButton(props) {
+  const { textClassName, style, fontStyle } = GetStyles(props.keyValue);
   return (
-    <Card
-      style={{
-        ...style,
-        padding: padding
-      }}>
-      <CardActionArea
-        onClick={props.onClick}
-        style={{
-          ...style,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-        <CardContent>
-          <Typography style={{ fontSize: style.fontSize, marginTop: 0 }} color={style.color}>
+    <Card className="Key-button" style={style}>
+      <CardActionArea className="Key-button-clickable-body" onClick={props.onClick}>
+        <CardContent className="Key-button-content">
+          <Typography className={textClassName} style={fontStyle} color={fontStyle.color}>
             <b>{props.text}</b>
           </Typography>
         </CardContent>
@@ -58,7 +53,6 @@ function KeyButton(props) {
 }
 
 export default function Keyboard(props) {
-  const padding = 5;
   const keys = [
     ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
@@ -72,15 +66,14 @@ export default function Keyboard(props) {
             {Array.from(keyRow).map((text) => {
               const key = TextToKey(text);
               return (
-                <div key={key} style={{ padding: padding }}>
-                  {" "}
+                <div key={key} className="Key-button-div">
                   <KeyButton
                     keyValue={key}
                     text={text}
                     onClick={() => {
                       return props.onKeyDown(key);
                     }}
-                  />{" "}
+                  />
                 </div>
               );
             })}
