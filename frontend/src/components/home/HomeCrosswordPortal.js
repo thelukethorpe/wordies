@@ -42,7 +42,6 @@ export default function HomeCrosswordPortal() {
           }
         ]}
         style={elementStyle}
-        verticalPadding={5}
       />
       <div style={elementStyle}>
         <Button

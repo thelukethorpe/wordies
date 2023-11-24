@@ -35,10 +35,9 @@ function ParseGetResponse(json) {
 export default function CrosswordPage() {
   const styles = {
     hintCard: {
-      padding: 5,
-      width: "12em",
-      height: "100%",
-      titleFontSize: 30
+      fontSize: "0.55em",
+      width: "18em",
+      height: "100%"
     }
   };
   const forceUpdate = useForceUpdate();

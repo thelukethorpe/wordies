@@ -1,0 +1,29 @@
+.Crossword-hint-card {
+    width: 100%;
+    height: 100%;
+}
+
+.Crossword-hint-card-content {
+    padding-top: 0.35em;
+    padding-bottom: 0.15em;
+}
+
+.Crossword-hint-card-title {
+    font-size: 1em;
+}
+
+.Crossword-hint-card-hint-div {
+    display: flex;
+    flex-direction: row;
+    padding: 0.25em 1px;
+    text-align: left;
+    font-size: 0.75em;
+}
+
+.Crossword-hint-card-hint-text {
+    font-size: 1em;
+}
+
+.Crossword-hint-card-hint-text.Main {
+    padding-left: 0.25em;
+}
