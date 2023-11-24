@@ -1,0 +1,16 @@
+.Figure {
+    display: table;
+}
+
+.Figure-contents,
+.Figure-caption {
+    width: 1px;
+}
+
+.Figure-contents {
+    display: table-row;
+}
+
+.Figure-caption {
+    display: table-cell;
+}
